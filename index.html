@@ -11,25 +11,24 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+  <!-- ajuda a reduzir cache do navegador (PWA ainda pode cachear via SW) -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <style>
     :root{
-      /* fundo do app levemente mais claro */
       --bg1:#0B1220; --bg2:#0F1724;
       --card:rgba(15,22,48,.9); --card2:rgba(11,18,38,.95);
       --line:#1E2A4A; --line2:#2A3A66;
       --text:#F3F6FF; --muted:#A9B4D0;
-      --blue:#3B82F6; --ok:#22C55E; --err:#EF4444; --warn:#F59E0B;
+      --ok:#22C55E; --err:#EF4444; --warn:#F59E0B;
       --shadow: 0 18px 45px rgba(0,0,0,.45);
     }
     *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-    body{
-      margin:0; color:var(--text);
-      background: linear-gradient(180deg, var(--bg1), var(--bg2));
-    }
+    body{ margin:0; color:var(--text); background: linear-gradient(180deg, var(--bg1), var(--bg2)); }
     .wrap{ max-width: 700px; margin:0 auto; padding: 18px; }
-    /* título com fonte maior */
     .title{ font-size:28px; font-weight: 900; }
-    /* subtitle levemente maior para manter proporção */
     .subtitle{ color:var(--muted); font-size:15px; margin-bottom:12px; }
 
     .card{
@@ -40,7 +39,6 @@
       box-shadow:var(--shadow);
       display:grid;
       gap:14px;
-      /* aumento leve da fonte dentro dos cards */
       font-size:15px;
     }
 
@@ -56,8 +54,8 @@
       cursor:pointer;
       flex:1;
     }
-    .btn.primary{ background:#2563EB; }
-    .btn.good{ background:#16A34A; }
+    .btn.primary{ background:#2563EB; border-color:#2563EB; }
+    .btn.good{ background:#16A34A; border-color:#16A34A; }
     .btn.sel{ outline:3px solid #60A5FA; }
 
     #reader{
@@ -87,7 +85,24 @@
       background:#050814;
       color:var(--text);
       width:100%;
+      outline:none;
     }
+
+    .pillRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--line2);
+      background:rgba(5,8,20,.55);
+      font-weight:900;
+      font-size:15px;
+    }
+    .dot{ width:12px; height:12px; border-radius:999px; background:var(--muted); }
+    .dot.ok{ background: var(--ok); }
+    .dot.warn{ background: var(--warn); }
+    .dot.err{ background: var(--err); }
+    .mini{ color:var(--muted); font-weight:800; }
   </style>
 
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -96,7 +111,7 @@
 <body>
 <div class="wrap">
   <div class="title">📷 QR Concreto</div>
-  <div class="subtitle">Ler QR → Digitar MPA → Salvar</div>
+  <div class="subtitle">Ler QR → Digitar MPA → Status automático (Min/Max) → Salvar</div>
 
   <div class="card">
 
@@ -123,6 +138,14 @@
 
     <input id="mpaInput" class="mpaInput" placeholder="MPA (ex: 21,5)" />
 
+    <div class="pillRow">
+      <div class="pill">
+        <span id="dotMeta" class="dot"></span>
+        <span id="metaTxt">Meta: —</span>
+      </div>
+      <div class="pill mini" id="helpTxt">Digite o MPA para ver o status.</div>
+    </div>
+
     <button class="btn good" id="btnSave" disabled>💾 SALVAR</button>
 
   </div>
@@ -131,36 +154,79 @@
 <script>
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw64byn3Vk-6nVYqwy_RUbREQiLe_UWRNhVFfM3AvrYrtjjUXx4I4LVMtGtdxKZUZqZ/exec";
 
+/**
+ * Faixa esperada (Min/Max)
+ * 24h = 1 dia
+ */
+const META_FAIXA = {
+  1:  { min: 8,  max: 14 },
+  3:  { min: 16, max: 24 },
+  7:  { min: 22, max: 32 },
+  28: { min: 32, max: 42 }
+};
+
 let operador = "";
 let lastRaw = "";
 let lastParsed = null;
 let qr = null;
 
 const $ = id => document.getElementById(id);
-const status = (t,c="") => { $("status").textContent=t; $("status").className="status "+c; };
+const setStatus = (t,c="") => { $("status").textContent=t; $("status").className="status "+c; };
+
+// força pegar versão nova por abertura (evita “ficar preso” no cache/PWA)
+(async function forceFreshOnOpen(){
+  try{
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const reg of regs) await reg.update();
+    }
+    // limpa caches uma vez por abertura
+    const key = "cache_bust_done";
+    if (!sessionStorage.getItem(key) && 'caches' in window) {
+      sessionStorage.setItem(key, "1");
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+      location.reload(true);
+    }
+  } catch(e){}
+})();
 
 document.querySelectorAll("#ops .btn").forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll("#ops .btn").forEach(x=>x.classList.remove("sel"));
     b.classList.add("sel");
     operador=b.dataset.op;
+    // revalida botão salvar
+    $("btnSave").disabled = !canSave(mpaNumber());
   };
 });
 
 $("btnStart").onclick=async()=>{
-  if(!operador){ status("selecione operador","err"); return; }
+  if(!operador){ setStatus("selecione operador","err"); return; }
   $("reader").style.display="block";
   qr ??= new Html5Qrcode("reader");
-  await qr.start({facingMode:"environment"},{fps:10,qrbox:300},txt=>{
-    qr.stop();
+
+  await qr.start({facingMode:"environment"},{fps:10,qrbox:300},async (txt)=>{
+    await qr.stop();
     $("reader").style.display="none";
-    lastRaw=txt;
-    lastParsed=parseQR(txt);
+
+    lastRaw = txt;
+    lastParsed = parseQR(txt);
     preview(lastParsed);
-    status("QR lido","warn");
-    $("btnSave").disabled=false;
+
+    $("mpaInput").value = "";
+    updateMPAStatus();
+    $("btnSave").disabled = true;
+
+    setStatus("QR lido • digite o MPA","warn");
+    $("mpaInput").focus();
   });
 };
+
+$("mpaInput").addEventListener("input", ()=>{
+  updateMPAStatus();
+  $("btnSave").disabled = !canSave(mpaNumber());
+});
 
 $("btnSave").onclick=()=>send();
 
@@ -181,49 +247,101 @@ function parseQR(raw){
 
 function formatData(data){
   if(!data) return "—";
-  // Se já está em formato YYYY-MM-DD, converte para DD/MM/YYYY
-  if(data.includes("-")) {
-    const [y,m,d]=data.split("-");
+  if(String(data).includes("-")) {
+    const [y,m,d]=String(data).split("-");
     return `${d}/${m}/${y}`;
   }
-  // Se estiver em DD/MM/YYYY, deixa como está
-  return data;
+  return String(data);
 }
 
 function preview(p){
-  $("pv_traco").textContent=p.traco_id;
-  $("pv_cp").textContent=p.cp;
-  $("pv_idade").textContent=p.idade_dias;
-  $("pv_mold").textContent=formatData(p.data_moldagem);
-  $("pv_hora").textContent=p.hora_moldagem;
-  $("pv_rupt").textContent=formatData(p.data_ruptura);
+  $("pv_traco").textContent = p.traco_id || "—";
+  $("pv_cp").textContent    = p.cp || "—";
+  $("pv_idade").textContent = p.idade_dias || "—";
+  $("pv_mold").textContent  = formatData(p.data_moldagem);
+  $("pv_hora").textContent  = p.hora_moldagem || "—";
+  $("pv_rupt").textContent  = formatData(p.data_ruptura);
+}
+
+function mpaNumber(){
+  const s = String($("mpaInput").value||"").trim().replace(",",".");
+  const cleaned = s.replace(/[^0-9.]/g,"");
+  if(!cleaned) return null;
+  const i = cleaned.indexOf(".");
+  const normalized = (i === -1) ? cleaned : (cleaned.slice(0,i+1) + cleaned.slice(i+1).replace(/\./g,""));
+  const v = Number(normalized);
+  return Number.isFinite(v) ? v : null;
+}
+
+// status por faixa min/max da idade: ABAIXO / DENTRO / ACIMA
+function calcMetaStatus(mpa){
+  const idade = Number(lastParsed?.idade_dias || "");
+  const meta = META_FAIXA[idade];
+  if(!meta) return { status:"SEM_META", label:"Meta: — (idade sem faixa)", cls:"warn", dot:"warn", metaMin:"", metaMax:"" };
+  if(mpa == null) return { status:"SEM_MPA", label:`Meta: ${meta.min}–${meta.max} MPa`, cls:"warn", dot:"warn", metaMin:meta.min, metaMax:meta.max };
+
+  if(mpa < meta.min) return { status:"ABAIXO", label:`Meta: ${meta.min}–${meta.max} • ABAIXO ❌`, cls:"err", dot:"err", metaMin:meta.min, metaMax:meta.max };
+  if(mpa > meta.max) return { status:"ACIMA",  label:`Meta: ${meta.min}–${meta.max} • ACIMA ⚠️`, cls:"warn", dot:"warn", metaMin:meta.min, metaMax:meta.max };
+  return { status:"DENTRO", label:`Meta: ${meta.min}–${meta.max} • DENTRO ✅`, cls:"ok", dot:"ok", metaMin:meta.min, metaMax:meta.max };
+}
+
+function updateMPAStatus(){
+  const mpa = mpaNumber();
+  const s = calcMetaStatus(mpa);
+  $("metaTxt").textContent = s.label;
+  $("dotMeta").className = "dot " + (s.dot || "");
+  $("helpTxt").textContent = (mpa == null) ? "Digite o MPA para ver o status." : "Clique em SALVAR.";
+}
+
+function canSave(mpa){
+  if(!operador) return false;
+  if(!lastParsed) return false;
+  if(mpa == null || mpa <= 0 || mpa >= 200) return false;
+  if(!lastParsed.traco_id || !lastParsed.cp || !lastParsed.idade_dias) return false;
+  return true;
 }
 
 async function send(){
-  const mpa=$("mpaInput").value.replace(",",".");
-  if(!mpa){ status("MPA obrigatório","err"); return; }
+  const mpa = mpaNumber();
+  if(!canSave(mpa)){ setStatus("verifique QR + MPA + operador","err"); return; }
 
-  status("salvando...","warn");
+  const meta = calcMetaStatus(mpa);
 
-  const res=await fetch(WEBAPP_URL,{
-    method:"POST",
-    headers:{ "Content-Type":"text/plain;charset=utf-8" },
-    body:JSON.stringify({
-      operador,
-      mpa,
-      ...lastParsed,
-      qr_raw:lastRaw,
-      timestamp:new Date().toISOString()
-    })
-  });
+  setStatus("salvando...","warn");
+  $("btnSave").disabled = true;
 
-  const r=await res.text();
-  if(r.includes("ok")){
-    status("gravado na planilha","ok");
-    $("btnSave").disabled=true;
-    $("mpaInput").value="";
-  }else{
-    status("erro ao gravar","err");
+  // cache-bust na URL (evita cache em redes/operadoras)
+  const url = WEBAPP_URL + "?t=" + Date.now();
+
+  try{
+    const res = await fetch(url,{
+      method:"POST",
+      headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        operador,
+        mpa: String(mpa),
+        status_meta: meta.status,   // ABAIXO/DENTRO/ACIMA
+        meta_min: meta.metaMin,
+        meta_max: meta.metaMax,
+        ...lastParsed,
+        qr_raw:lastRaw,
+        timestamp:new Date().toISOString()
+      })
+    });
+
+    const text = await res.text();
+    if(text.includes("ok")){
+      setStatus("gravado na planilha ✅","ok");
+      $("mpaInput").value="";
+      $("btnSave").disabled = true;
+      updateMPAStatus();
+    }else{
+      setStatus("erro ao gravar","err");
+      $("btnSave").disabled = false;
+    }
+  }catch(e){
+    setStatus("erro envio: " + (e?.message || e), "err");
+    $("btnSave").disabled = false;
   }
 }
 </script>
