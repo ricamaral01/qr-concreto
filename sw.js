@@ -1,4 +1,4 @@
-const CACHE = "qr-pwa-v1";
+const CACHE = "qr-pwa-v2";
 const ASSETS = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", (e) => {
