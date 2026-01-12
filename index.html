@@ -13,102 +13,78 @@
 
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#111827;
-      --card2:#0f172a;
-      --line:#1f2937;
-      --line2:#243244;
-      --text:#e5e7eb;
-      --muted:#94a3b8;
-      --blue:#1d4ed8;
-      --ok:#22c55e;
-      --err:#ef4444;
-      --warn:#f59e0b;
+      --bg:#0b1220; --card:#111827; --card2:#0f172a;
+      --line:#1f2937; --line2:#243244; --text:#e5e7eb; --muted:#94a3b8;
+      --blue:#1d4ed8; --ok:#22c55e; --err:#ef4444; --warn:#f59e0b;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
     }
     *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
     body{ margin:0; background:var(--bg); color:var(--text); }
-    .wrap{ max-width: 560px; margin:0 auto; padding: 14px; padding-bottom: 26px; }
-    .top{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; margin: 6px 0 12px;
-    }
-    .title{ font-size: 16px; font-weight: 800; letter-spacing:.2px; }
+    .wrap{ max-width: 580px; margin:0 auto; padding: 14px; padding-bottom: 26px; }
+    .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin: 6px 0 12px; }
+    .title{ font-size: 16px; font-weight: 850; letter-spacing:.2px; }
     .pill{
-      padding:6px 10px; border-radius:999px;
-      background:var(--card2); border:1px solid var(--line2);
-      color:var(--muted); font-size:12px; display:flex; align-items:center; gap:6px;
+      padding:6px 10px; border-radius:999px; background:var(--card2);
+      border:1px solid var(--line2); color:var(--muted); font-size:12px;
+      display:flex; align-items:center; gap:6px;
     }
     .dot{ width:8px; height:8px; border-radius:999px; background:var(--muted); }
-    .card{
-      background:var(--card); border:1px solid var(--line);
-      border-radius: 18px; padding: 12px; box-shadow: var(--shadow);
-    }
+    .card{ background:var(--card); border:1px solid var(--line); border-radius: 18px; padding: 12px; box-shadow: var(--shadow); }
     .grid{ display:grid; gap:10px; }
     .hint{ color:var(--muted); font-size:12px; line-height: 1.25rem; }
     .ops{ display:flex; gap:8px; flex-wrap:wrap; }
     .btn{
-      border:1px solid var(--line2);
-      background:var(--card2);
-      color:var(--text);
-      padding:12px 12px;
-      border-radius: 14px;
-      font-weight: 750;
-      cursor:pointer;
-      flex: 1;
-      min-width: 120px;
-      transition: transform .02s ease-in-out;
-      user-select:none;
+      border:1px solid var(--line2); background:var(--card2); color:var(--text);
+      padding:12px 12px; border-radius: 14px; font-weight: 800; cursor:pointer;
+      flex: 1; min-width: 120px; user-select:none;
     }
     .btn:active{ transform: scale(.99); }
     .btn.primary{ background:var(--blue); border-color:var(--blue); }
+    .btn.good{ background:#16a34a; border-color:#16a34a; }
+    .btn.bad{ background:#b91c1c; border-color:#b91c1c; }
     .btn.sel{ outline: 2px solid #60a5fa; }
     .row{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    .kv{
-      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
-    }
-    .field{
-      background:var(--card2);
-      border:1px solid var(--line2);
-      border-radius: 14px;
-      padding:10px;
-    }
+    .kv{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .field{ background:var(--card2); border:1px solid var(--line2); border-radius: 14px; padding:10px; }
     .label{ color:var(--muted); font-size: 11px; }
-    .value{ font-weight: 800; margin-top:4px; font-size: 14px; letter-spacing:.2px; }
-    #reader{
-      width:100%;
-      overflow:hidden;
-      border-radius: 18px;
-      border:1px solid var(--line);
-      background:#000;
-    }
+    .value{ font-weight: 850; margin-top:4px; font-size: 14px; letter-spacing:.2px; }
+    #reader{ width:100%; overflow:hidden; border-radius: 18px; border:1px solid var(--line); background:#000; }
     .statusLine{ display:flex; gap:10px; align-items:center; justify-content:space-between; }
-    .status{
-      font-weight: 900; letter-spacing:.2px;
-    }
-    .status.ok{ color: var(--ok); }
-    .status.err{ color: var(--err); }
-    .status.warn{ color: var(--warn); }
+    .status{ font-weight: 900; letter-spacing:.2px; }
+    .status.ok{ color: var(--ok); } .status.err{ color: var(--err); } .status.warn{ color: var(--warn); }
+    .divider{ height:1px; background: var(--line); margin: 4px 0; opacity:.8; }
+    .hidden{ display:none; }
+    .log{ display:grid; gap:8px; }
+    .logItem{ padding:10px; border-radius: 14px; background:var(--card2); border:1px solid var(--line2); }
     .mono{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size:12px; color:#cbd5e1; white-space:pre-wrap; word-break:break-word;
     }
-    .log{ display:grid; gap:8px; }
-    .logItem{
-      padding:10px;
-      border-radius: 14px;
+
+    /* MPA input */
+    .mpaBox{
       background:var(--card2);
       border:1px solid var(--line2);
+      border-radius: 16px;
+      padding: 12px;
+      display:grid;
+      gap:8px;
     }
-    .hidden{ display:none; }
-    .divider{ height:1px; background: var(--line); margin: 4px 0; opacity:.8; }
-    .footerHint{
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.25rem;
-      text-align:center;
+    .mpaRow{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .mpaInput{
+      width: 100%;
+      font-size: 22px;
+      font-weight: 900;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border:1px solid var(--line2);
+      background:#0b1220;
+      color:var(--text);
+      outline:none;
     }
+    .mpaInput::placeholder{ color:#64748b; font-weight:700; }
+    .mpaHelp{ color:var(--muted); font-size: 12px; line-height: 1.2rem; }
+    .footerHint{ margin-top: 10px; color: var(--muted); font-size: 11px; line-height: 1.25rem; text-align:center; }
   </style>
 
   <!-- Scanner QR -->
@@ -118,13 +94,13 @@
 <body>
   <div class="wrap">
     <div class="top">
-      <div class="title">📷 Leitor de QR • Controle Tecnológico</div>
-      <div class="pill" id="connPill"><span class="dot" id="connDot"></span><span id="connTxt">offline</span></div>
+      <div class="title">📷 Leitor de QR • Registro MPA</div>
+      <div class="pill"><span class="dot" id="connDot"></span><span id="connTxt">offline</span></div>
     </div>
 
     <div class="card grid">
       <div class="hint">
-        1) Selecione o operador • 2) Clique <b>Ler QR</b> • 3) Salva automático na planilha
+        1) Selecione o operador • 2) <b>Ler QR</b> • 3) Digite <b>MPA</b> • 4) <b>Salvar</b>
       </div>
 
       <div class="ops" id="ops">
@@ -135,48 +111,49 @@
 
       <div class="row">
         <button class="btn primary" id="btnStart">Ler QR</button>
-        <button class="btn" id="btnNew" disabled>Nova leitura</button>
+        <button class="btn" id="btnNew">Nova leitura</button>
       </div>
 
       <div id="reader" class="hidden"></div>
 
       <div class="statusLine">
-        <div class="hint">
-          Status: <span id="status" class="status">aguardando</span>
-        </div>
-        <div class="hint">
-          Operador: <b id="opView">—</b>
-        </div>
+        <div class="hint">Status: <span id="status" class="status">aguardando</span></div>
+        <div class="hint">Operador: <b id="opView">—</b></div>
       </div>
 
       <div class="divider"></div>
 
-      <div class="hint"><b>Prévia do que será gravado</b></div>
+      <div class="hint"><b>Prévia do QR</b></div>
       <div class="kv">
-        <div class="field">
-          <div class="label">Traço_ID</div>
-          <div class="value" id="pv_traco">—</div>
+        <div class="field"><div class="label">Traço_ID</div><div class="value" id="pv_traco">—</div></div>
+        <div class="field"><div class="label">CP</div><div class="value" id="pv_cp">—</div></div>
+        <div class="field"><div class="label">Data Moldagem</div><div class="value" id="pv_mold">—</div></div>
+        <div class="field"><div class="label">Hora Moldagem</div><div class="value" id="pv_hora">—</div></div>
+        <div class="field"><div class="label">Idade (dias)</div><div class="value" id="pv_idade">—</div></div>
+        <div class="field"><div class="label">Data Ruptura</div><div class="value" id="pv_rupt">—</div></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="mpaBox">
+        <div class="row">
+          <div class="hint"><b>MPA (resistência medida)</b></div>
+          <div class="hint">Obrigatório</div>
         </div>
-        <div class="field">
-          <div class="label">CP</div>
-          <div class="value" id="pv_cp">—</div>
+
+        <input
+          id="mpaInput"
+          class="mpaInput"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="Ex: 21,5"
+        />
+
+        <div class="mpaHelp">
+          Aceita vírgula ou ponto. Ex.: <b>21,5</b> = <b>21.5</b>
         </div>
-        <div class="field">
-          <div class="label">Data Moldagem</div>
-          <div class="value" id="pv_mold">—</div>
-        </div>
-        <div class="field">
-          <div class="label">Hora Moldagem</div>
-          <div class="value" id="pv_hora">—</div>
-        </div>
-        <div class="field">
-          <div class="label">Idade (dias)</div>
-          <div class="value" id="pv_idade">—</div>
-        </div>
-        <div class="field">
-          <div class="label">Data Ruptura</div>
-          <div class="value" id="pv_rupt">—</div>
-        </div>
+
+        <button class="btn good" id="btnSave" disabled>Salvar na planilha</button>
       </div>
 
       <div class="divider"></div>
@@ -196,11 +173,22 @@
  ***********************/
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyDzgeU-ECAw4Gn3uTeQXPLM1nqINAMLgPHBxa72FXpXsazYt3Z8uZJLK-XZbv7Mqeg/exec";
 
-// ⚠️ O token precisa ser IGUAL no Code.gs
-const API_TOKEN  = "qrConcreto_2026_Concrefer@01";
+// ⚠️ precisa ser IGUAL no Code.gs
+const API_TOKEN  = "TROQUE_ESSE_TOKEN_123";
 
 /***********************
- * HELPERS UI
+ * ESTADO
+ ***********************/
+let selectedOp = "";
+let html5Qr = null;
+let scanning = false;
+
+// Guardamos o último QR lido (para salvar depois com MPA)
+let lastRaw = "";
+let lastParsed = null;
+
+/***********************
+ * HELPERS
  ***********************/
 const $ = (id) => document.getElementById(id);
 
@@ -224,12 +212,12 @@ function escapeHtml(s) {
 }
 
 function fillPreview(p) {
-  $("pv_traco").textContent = p.traco_id || "—";
-  $("pv_cp").textContent    = p.cp || "—";
-  $("pv_mold").textContent  = p.data_moldagem || "—";
-  $("pv_hora").textContent  = p.hora_moldagem || "—";
-  $("pv_idade").textContent = (p.idade_dias !== "" && p.idade_dias != null) ? p.idade_dias : "—";
-  $("pv_rupt").textContent  = p.data_ruptura || "—";
+  $("pv_traco").textContent = p?.traco_id || "—";
+  $("pv_cp").textContent    = p?.cp || "—";
+  $("pv_mold").textContent  = p?.data_moldagem || "—";
+  $("pv_hora").textContent  = p?.hora_moldagem || "—";
+  $("pv_idade").textContent = (p?.idade_dias !== "" && p?.idade_dias != null) ? p.idade_dias : "—";
+  $("pv_rupt").textContent  = p?.data_ruptura || "—";
 }
 
 function pushLog(entry) {
@@ -241,17 +229,29 @@ function pushLog(entry) {
       <div class="hint">${entry.ok ? "✅ OK" : "❌ ERRO"} • ${dt}</div>
       <div class="hint">Op: <b>${escapeHtml(entry.operador || "")}</b></div>
     </div>
+    <div class="hint" style="margin-top:6px;">MPA: <b>${escapeHtml(entry.mpa || "—")}</b></div>
     <div class="mono" style="margin-top:8px;">${escapeHtml(entry.raw || "")}</div>
   `;
   $("logBox").prepend(div);
   while ($("logBox").children.length > 6) $("logBox").removeChild($("logBox").lastChild);
 }
 
+function normalizaData(v) {
+  if (!v) return "";
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  return s;
+}
+
 /***********************
  * PARSE DO QR (UNIVERSAL)
  * Suporta:
- * 1) key=value com separadores | ; \n ,   (ex: traco=21663|cp=2/2|idade=28|mold=2026-01-05|hora=13:24|rupt=2026-02-02)
- * 2) formato "Traço: 21663" (caso algum QR venha nesse modelo)
+ * - key=value com separadores | ; \n ,
+ *   ex: traco=21663|cp=2/2|idade=28|mold=2026-01-05|hora=13:24|rupt=2026-02-02
+ * - fallback: "Traço: 21663" (caso exista algum)
  ***********************/
 function parseQR(raw) {
   const out = {
@@ -267,13 +267,10 @@ function parseQR(raw) {
 
   const text = String(raw).replace(/\r/g, "");
 
-  // === 1) Tenta key=value (mais comum no seu caso real)
-  const norm = text
-    .replace(/\n/g, "|")
-    .replace(/;/g, "|")
-    .replace(/,/g, "|");
-
+  // 1) key=value
+  const norm = text.replace(/\n/g, "|").replace(/;/g, "|").replace(/,/g, "|");
   const parts = norm.split("|").map(p => p.trim()).filter(Boolean);
+
   const kv = {};
   for (const p of parts) {
     const eq = p.indexOf("=");
@@ -284,11 +281,8 @@ function parseQR(raw) {
     }
   }
 
-  // Mapeia chaves possíveis
   const pick = (...keys) => {
-    for (const k of keys) {
-      if (kv[k] != null && kv[k] !== "") return kv[k];
-    }
+    for (const k of keys) if (kv[k] != null && kv[k] !== "") return kv[k];
     return "";
   };
 
@@ -309,7 +303,7 @@ function parseQR(raw) {
     return out;
   }
 
-  // === 2) Fallback: formato "Traço: 21663"
+  // 2) fallback "Traço: ..."
   const traco = text.match(/Traço:\s*([0-9]+)/i);
   if (traco) out.traco_id = traco[1];
 
@@ -331,28 +325,41 @@ function parseQR(raw) {
   return out;
 }
 
-function normalizaData(v) {
-  if (!v) return "";
-  const s = String(v).trim();
-
-  // yyyy-mm-dd -> dd/mm/yyyy
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-    const [y, m, d] = s.split("-");
-    return `${d}/${m}/${y}`;
+/***********************
+ * MPA: normalização e validação
+ ***********************/
+function normalizeMPA(input) {
+  // aceita "21,5" -> "21.5"
+  const s = String(input || "").trim().replace(",", ".");
+  // remove caracteres estranhos, mantendo dígitos e ponto
+  const cleaned = s.replace(/[^0-9.]/g, "");
+  if (!cleaned) return "";
+  // evita múltiplos pontos: mantém o primeiro
+  const firstDot = cleaned.indexOf(".");
+  if (firstDot !== -1) {
+    const before = cleaned.slice(0, firstDot + 1);
+    const after  = cleaned.slice(firstDot + 1).replace(/\./g, "");
+    return before + after;
   }
-  // dd/mm/yyyy (já ok)
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  return cleaned;
+}
 
-  return s; // mantém como veio (caso apareça outro formato)
+function isValidMPA(mpaStr) {
+  if (!mpaStr) return false;
+  const v = Number(mpaStr);
+  // você pode ajustar limites aqui (ex: 0 a 100)
+  return Number.isFinite(v) && v > 0 && v < 200;
+}
+
+function updateSaveButton() {
+  const mpa = normalizeMPA($("mpaInput").value);
+  const ok = !!lastParsed && !!lastRaw && isValidMPA(mpa);
+  $("btnSave").disabled = !ok;
 }
 
 /***********************
- * SCANNER / FLOW
+ * OPERADOR
  ***********************/
-let selectedOp = "";
-let html5Qr = null;
-let scanning = false;
-
 document.querySelectorAll("#ops .btn").forEach(b => {
   b.addEventListener("click", () => {
     document.querySelectorAll("#ops .btn").forEach(x => x.classList.remove("sel"));
@@ -363,29 +370,51 @@ document.querySelectorAll("#ops .btn").forEach(b => {
   });
 });
 
+/***********************
+ * BOTÕES
+ ***********************/
 $("btnStart").addEventListener("click", async () => {
   if (!selectedOp) {
     setStatus("selecione operador", "err");
-    return;
-  }
-  if (!WEBAPP_URL.includes("script.google.com")) {
-    setStatus("URL do Web App inválida", "err");
     return;
   }
   startScan();
 });
 
 $("btnNew").addEventListener("click", async () => {
-  if (scanning) return;
-  fillPreview({traco_id:"",cp:"",data_moldagem:"",hora_moldagem:"",idade_dias:"",data_ruptura:""});
-  startScan();
+  // reseta tudo
+  lastRaw = "";
+  lastParsed = null;
+  $("mpaInput").value = "";
+  fillPreview(null);
+  updateSaveButton();
+  setStatus("aguardando", "");
 });
 
+$("mpaInput").addEventListener("input", () => {
+  // normaliza enquanto digita (sem ficar “pulando” demais)
+  updateSaveButton();
+});
+
+$("btnSave").addEventListener("click", async () => {
+  const mpa = normalizeMPA($("mpaInput").value);
+  if (!isValidMPA(mpa)) {
+    setStatus("MPA inválido", "err");
+    return;
+  }
+  if (!lastParsed || !lastRaw) {
+    setStatus("leia um QR primeiro", "err");
+    return;
+  }
+  await sendToSheet(lastRaw, lastParsed, mpa);
+});
+
+/***********************
+ * SCANNER
+ ***********************/
 async function startScan() {
   setStatus("abrindo câmera...", "");
   $("btnStart").disabled = true;
-  $("btnNew").disabled = true;
-
   $("reader").classList.remove("hidden");
 
   if (!html5Qr) html5Qr = new Html5Qrcode("reader");
@@ -406,17 +435,24 @@ async function startScan() {
         const parsed = parseQR(decodedText);
         fillPreview(parsed);
 
-        // Validação mínima (pra evitar enviar lixo)
+        // validação mínima do QR
         if (!parsed.traco_id || !parsed.cp || !parsed.data_moldagem || !parsed.hora_moldagem) {
-          setStatus("QR lido, mas faltam campos (verifique formato)", "err");
-          pushLog({ ok:false, raw: decodedText, operador: selectedOp });
-          $("btnNew").disabled = false;
+          lastRaw = decodedText;
+          lastParsed = parsed;
+          updateSaveButton();
+          setStatus("QR lido, mas faltam campos (verifique o QR)", "err");
+          pushLog({ ok:false, raw: decodedText, operador: selectedOp, mpa:"" });
           $("btnStart").disabled = false;
           return;
         }
 
-        setStatus("lido! enviando...", "warn");
-        await sendToSheet(decodedText, parsed);
+        lastRaw = decodedText;
+        lastParsed = parsed;
+
+        setStatus("QR lido ✅ digite o MPA e clique Salvar", "warn");
+        // foca no MPA pra agilizar
+        $("mpaInput").focus();
+        updateSaveButton();
       },
       () => {}
     );
@@ -440,12 +476,20 @@ async function stopScan() {
   $("reader").classList.add("hidden");
 }
 
-async function sendToSheet(raw, parsed) {
+/***********************
+ * ENVIO
+ ***********************/
+async function sendToSheet(raw, parsed, mpaStr) {
   try {
+    setStatus("salvando na planilha...", "warn");
+    $("btnSave").disabled = true;
+    $("btnStart").disabled = true;
+
     const payload = {
       token: API_TOKEN,
       timestamp: new Date().toISOString(),
       operador: selectedOp,
+      mpa: mpaStr,
       ...parsed,
       qr_raw: raw
     };
@@ -460,17 +504,26 @@ async function sendToSheet(raw, parsed) {
 
     if (data.ok) {
       setStatus("gravado na planilha ✅", "ok");
-      pushLog({ ok:true, raw, operador: selectedOp });
-      $("btnNew").disabled = false;
+      pushLog({ ok:true, raw, operador: selectedOp, mpa: mpaStr });
+
+      // prepara próxima leitura (mas não abre câmera automaticamente)
+      // você pode clicar em Nova leitura e depois Ler QR
+      // (se quiser, eu altero pra abrir câmera automático após salvar)
+      lastRaw = "";
+      lastParsed = null;
+      $("mpaInput").value = "";
+      fillPreview(null);
+      updateSaveButton();
+
     } else {
       setStatus("falhou: " + (data.error || "erro"), "err");
-      pushLog({ ok:false, raw, operador: selectedOp });
-      $("btnNew").disabled = false;
+      pushLog({ ok:false, raw, operador: selectedOp, mpa: mpaStr });
+      updateSaveButton();
     }
   } catch (e) {
     setStatus("erro envio: " + (e?.message || e), "err");
-    pushLog({ ok:false, raw, operador: selectedOp });
-    $("btnNew").disabled = false;
+    pushLog({ ok:false, raw, operador: selectedOp, mpa: mpaStr });
+    updateSaveButton();
   } finally {
     $("btnStart").disabled = false;
   }
