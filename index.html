@@ -53,10 +53,15 @@
       font-size:16px;
       cursor:pointer;
       flex:1;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
     .btn.primary{ background:#2563EB; border-color:#2563EB; }
     .btn.good{ background:#16A34A; border-color:#16A34A; }
     .btn.sel{ outline:3px solid #60A5FA; }
+    .btn.dark{ background:#0B1220; border-color:#0B1220; }
 
     #reader{
       width:100%;
@@ -189,6 +194,9 @@
 
     <button class="btn good" id="btnSave" disabled>💾 SALVAR</button>
 
+    <!-- ✅ LINK PARA DASHBOARD -->
+    <a class="btn dark" id="btnDash" href="#" target="_blank" rel="noopener">📊 ABRIR DASHBOARD</a>
+
   </div>
 </div>
 
@@ -201,7 +209,10 @@
 </div>
 
 <script>
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw64byn3Vk-6nVYqwy_RUbREQiLe_UWRNhVFfM3AvrYrtjjUXx4I4LVMtGtdxKZUZqZ/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxlEik4OqQegxkC3jLzkEow8dwv3ryyBb4BqeosUnKzWSq9Dca6uSi9epSXQXCZ5dlE/exec";
+const DASH_URL = WEBAPP_URL + "?view=dashboard";
+
+document.getElementById("btnDash").href = DASH_URL;
 
 /**
  * Faixa esperada (Min/Max)
@@ -223,8 +234,7 @@ const $ = id => document.getElementById(id);
 const setStatus = (t,c="") => { $("status").textContent=t; $("status").className="status "+c; };
 
 function fecharModal(){
-  const modal = $("modalSucesso");
-  modal.classList.remove("show");
+  $("modalSucesso").classList.remove("show");
 }
 
 // força pegar versão nova por abertura (evita “ficar preso” no cache/PWA)
@@ -234,7 +244,6 @@ function fecharModal(){
       const regs = await navigator.serviceWorker.getRegistrations();
       for (const reg of regs) await reg.update();
     }
-    // limpa caches uma vez por abertura
     const key = "cache_bust_done";
     if (!sessionStorage.getItem(key) && 'caches' in window) {
       sessionStorage.setItem(key, "1");
@@ -250,7 +259,6 @@ document.querySelectorAll("#ops .btn").forEach(b=>{
     document.querySelectorAll("#ops .btn").forEach(x=>x.classList.remove("sel"));
     b.classList.add("sel");
     operador=b.dataset.op;
-    // revalida botão salvar
     $("btnSave").disabled = !canSave(mpaNumber());
   };
 });
@@ -327,16 +335,15 @@ function mpaNumber(){
   return Number.isFinite(v) ? v : null;
 }
 
-// status por faixa min/max da idade: ABAIXO / DENTRO / ACIMA
 function calcMetaStatus(mpa){
   const idade = Number(lastParsed?.idade_dias || "");
   const meta = META_FAIXA[idade];
-  if(!meta) return { status:"SEM_META", label:"Meta: — (idade sem faixa)", cls:"warn", dot:"warn", metaMin:"", metaMax:"" };
-  if(mpa == null) return { status:"SEM_MPA", label:`Meta: ${meta.min}–${meta.max} MPa`, cls:"warn", dot:"warn", metaMin:meta.min, metaMax:meta.max };
+  if(!meta) return { status:"SEM_META", label:"Meta: — (idade sem faixa)", dot:"warn", metaMin:"", metaMax:"" };
+  if(mpa == null) return { status:"SEM_MPA", label:`Meta: ${meta.min}–${meta.max} MPa`, dot:"warn", metaMin:meta.min, metaMax:meta.max };
 
-  if(mpa < meta.min) return { status:"ABAIXO", label:`Meta: ${meta.min}–${meta.max} • ABAIXO ❌`, cls:"err", dot:"err", metaMin:meta.min, metaMax:meta.max };
-  if(mpa > meta.max) return { status:"ACIMA",  label:`Meta: ${meta.min}–${meta.max} • ACIMA ⚠️`, cls:"warn", dot:"warn", metaMin:meta.min, metaMax:meta.max };
-  return { status:"DENTRO", label:`Meta: ${meta.min}–${meta.max} • DENTRO ✅`, cls:"ok", dot:"ok", metaMin:meta.min, metaMax:meta.max };
+  if(mpa < meta.min) return { status:"ABAIXO", label:`Meta: ${meta.min}–${meta.max} • ABAIXO ❌`, dot:"err", metaMin:meta.min, metaMax:meta.max };
+  if(mpa > meta.max) return { status:"ACIMA",  label:`Meta: ${meta.min}–${meta.max} • ACIMA ⚠️`, dot:"warn", metaMin:meta.min, metaMax:meta.max };
+  return { status:"DENTRO", label:`Meta: ${meta.min}–${meta.max} • DENTRO ✅`, dot:"ok", metaMin:meta.min, metaMax:meta.max };
 }
 
 function updateMPAStatus(){
@@ -364,7 +371,6 @@ async function send(){
   setStatus("salvando...","warn");
   $("btnSave").disabled = true;
 
-  // cache-bust na URL (evita cache em redes/operadoras)
   const url = WEBAPP_URL + "?t=" + Date.now();
 
   try{
@@ -374,7 +380,7 @@ async function send(){
       body: JSON.stringify({
         operador,
         mpa: String(mpa),
-        status_meta: meta.status,   // ABAIXO/DENTRO/ACIMA
+        status_meta: meta.status,
         meta_min: meta.metaMin,
         meta_max: meta.metaMax,
         ...lastParsed,
@@ -384,14 +390,25 @@ async function send(){
     });
 
     const text = await res.text();
-    if(text.includes("ok")){
+
+    // tenta parsear JSON (se o apps script retornou JSON)
+    let data = null;
+    try { data = JSON.parse(text); } catch(e) {}
+
+    if(text.includes("ok") || (data && data.ok)){
       setStatus("gravado na planilha ✅","ok");
       $("mpaInput").value="";
       $("btnSave").disabled = true;
       updateMPAStatus();
-      // Mostrar modal de sucesso
-      const modal = $("modalSucesso");
-      modal.classList.add("show");
+
+      // ✅ atualiza link do dashboard (se vier path no JSON)
+      if(data && data.dashboard_path){
+        $("btnDash").href = WEBAPP_URL + data.dashboard_path;
+      } else {
+        $("btnDash").href = DASH_URL;
+      }
+
+      $("modalSucesso").classList.add("show");
     }else{
       setStatus("erro ao gravar","err");
       $("btnSave").disabled = false;
