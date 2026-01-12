@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>QR Concreto • Registro MPA</title>
+  <title>Leitura CP • Registro MPA</title>
 
   <!-- PWA -->
   <link rel="manifest" href="./manifest.json">
@@ -13,7 +13,8 @@
 
   <style>
     :root{
-      --bg1:#070A12; --bg2:#0B1020;
+      /* fundo do app levemente mais claro */
+      --bg1:#0B1220; --bg2:#0F1724;
       --card:rgba(15,22,48,.9); --card2:rgba(11,18,38,.95);
       --line:#1E2A4A; --line2:#2A3A66;
       --text:#F3F6FF; --muted:#A9B4D0;
@@ -26,8 +27,10 @@
       background: linear-gradient(180deg, var(--bg1), var(--bg2));
     }
     .wrap{ max-width: 700px; margin:0 auto; padding: 18px; }
-    .title{ font-size: 22px; font-weight: 900; }
-    .subtitle{ color:var(--muted); font-size:14px; margin-bottom:12px; }
+    /* título com fonte maior */
+    .title{ font-size:28px; font-weight: 900; }
+    /* subtitle levemente maior para manter proporção */
+    .subtitle{ color:var(--muted); font-size:15px; margin-bottom:12px; }
 
     .card{
       background:var(--card);
@@ -37,6 +40,8 @@
       box-shadow:var(--shadow);
       display:grid;
       gap:14px;
+      /* aumento leve da fonte dentro dos cards */
+      font-size:15px;
     }
 
     .ops{ display:flex; gap:10px; flex-wrap:wrap; }
@@ -70,8 +75,8 @@
 
     .kv{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .field{ background:var(--card2); border:1px solid var(--line2); border-radius:14px; padding:12px; }
-    .label{ font-size:12px; color:var(--muted); }
-    .value{ font-size:18px; font-weight:900; margin-top:6px; }
+    .label{ font-size:15px; color:var(--muted); }
+    .value{ font-size:28px; font-weight:900; margin-top:6px; }
 
     .mpaInput{
       font-size:34px;
@@ -174,13 +179,20 @@ function parseQR(raw){
   return o;
 }
 
+function formatData(data){
+  if(!data) return "—";
+  // Converte DD/MM/YYYY para YYYY/MM/DD ou YYYY-MM-DD
+  const [d,m,y]=data.split("/");
+  return `${y}/${m}/${d}`;
+}
+
 function preview(p){
   $("pv_traco").textContent=p.traco_id;
   $("pv_cp").textContent=p.cp;
   $("pv_idade").textContent=p.idade_dias;
-  $("pv_mold").textContent=p.data_moldagem;
+  $("pv_mold").textContent=formatData(p.data_moldagem);
   $("pv_hora").textContent=p.hora_moldagem;
-  $("pv_rupt").textContent=p.data_ruptura;
+  $("pv_rupt").textContent=formatData(p.data_ruptura);
 }
 
 async function send(){
