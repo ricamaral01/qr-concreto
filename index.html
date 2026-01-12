@@ -62,9 +62,6 @@
     }
     .btn:active{ transform: scale(.99); }
     .btn.primary{ background:var(--blue); border-color:var(--blue); }
-    .btn.good{ background:#16a34a; border-color:#16a34a; }
-    .btn.bad{ background:#b91c1c; border-color:#b91c1c; }
-    .btn.ghost{ background:transparent; }
     .btn.sel{ outline: 2px solid #60a5fa; }
     .row{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
     .kv{
@@ -251,8 +248,10 @@ function pushLog(entry) {
 }
 
 /***********************
- * PARSE DO QR (modelo da etiqueta)
- * Ex.: "Traço: 21663\nCP: 1/2\nMoldagem: 05/01/2026\nHora: 13:24\n1 DIAS\nRuptura: 06/01/2026"
+ * PARSE DO QR (UNIVERSAL)
+ * Suporta:
+ * 1) key=value com separadores | ; \n ,   (ex: traco=21663|cp=2/2|idade=28|mold=2026-01-05|hora=13:24|rupt=2026-02-02)
+ * 2) formato "Traço: 21663" (caso algum QR venha nesse modelo)
  ***********************/
 function parseQR(raw) {
   const out = {
@@ -264,9 +263,53 @@ function parseQR(raw) {
     data_ruptura: "",
     qr_raw: raw
   };
+  if (!raw) return out;
 
-  const text = String(raw || "").replace(/\r/g, "");
+  const text = String(raw).replace(/\r/g, "");
 
+  // === 1) Tenta key=value (mais comum no seu caso real)
+  const norm = text
+    .replace(/\n/g, "|")
+    .replace(/;/g, "|")
+    .replace(/,/g, "|");
+
+  const parts = norm.split("|").map(p => p.trim()).filter(Boolean);
+  const kv = {};
+  for (const p of parts) {
+    const eq = p.indexOf("=");
+    if (eq > 0) {
+      const k = p.slice(0, eq).trim().toLowerCase();
+      const v = p.slice(eq + 1).trim();
+      if (k) kv[k] = v;
+    }
+  }
+
+  // Mapeia chaves possíveis
+  const pick = (...keys) => {
+    for (const k of keys) {
+      if (kv[k] != null && kv[k] !== "") return kv[k];
+    }
+    return "";
+  };
+
+  const tracoKV = pick("traco", "traço", "traco_id", "traço_id");
+  const cpKV    = pick("cp");
+  const idadeKV = pick("idade", "idade_dias", "idade-dias");
+  const moldKV  = pick("mold", "moldagem", "data_mold", "data_moldagem");
+  const horaKV  = pick("hora", "hora_mold", "hora_moldagem");
+  const ruptKV  = pick("rupt", "ruptura", "data_rupt", "data_ruptura");
+
+  if (tracoKV || cpKV || idadeKV || moldKV || horaKV || ruptKV) {
+    out.traco_id = tracoKV;
+    out.cp = cpKV;
+    out.idade_dias = idadeKV;
+    out.hora_moldagem = horaKV;
+    out.data_moldagem = normalizaData(moldKV);
+    out.data_ruptura = normalizaData(ruptKV);
+    return out;
+  }
+
+  // === 2) Fallback: formato "Traço: 21663"
   const traco = text.match(/Traço:\s*([0-9]+)/i);
   if (traco) out.traco_id = traco[1];
 
@@ -286,6 +329,21 @@ function parseQR(raw) {
   if (rupt) out.data_ruptura = rupt[1];
 
   return out;
+}
+
+function normalizaData(v) {
+  if (!v) return "";
+  const s = String(v).trim();
+
+  // yyyy-mm-dd -> dd/mm/yyyy
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  // dd/mm/yyyy (já ok)
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+
+  return s; // mantém como veio (caso apareça outro formato)
 }
 
 /***********************
@@ -319,7 +377,6 @@ $("btnStart").addEventListener("click", async () => {
 
 $("btnNew").addEventListener("click", async () => {
   if (scanning) return;
-  // limpa preview
   fillPreview({traco_id:"",cp:"",data_moldagem:"",hora_moldagem:"",idade_dias:"",data_ruptura:""});
   startScan();
 });
@@ -344,11 +401,19 @@ async function startScan() {
       backCam,
       config,
       async (decodedText) => {
-        // para no primeiro QR
         await stopScan();
 
         const parsed = parseQR(decodedText);
         fillPreview(parsed);
+
+        // Validação mínima (pra evitar enviar lixo)
+        if (!parsed.traco_id || !parsed.cp || !parsed.data_moldagem || !parsed.hora_moldagem) {
+          setStatus("QR lido, mas faltam campos (verifique formato)", "err");
+          pushLog({ ok:false, raw: decodedText, operador: selectedOp });
+          $("btnNew").disabled = false;
+          $("btnStart").disabled = false;
+          return;
+        }
 
         setStatus("lido! enviando...", "warn");
         await sendToSheet(decodedText, parsed);
