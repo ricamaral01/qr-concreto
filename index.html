@@ -181,9 +181,13 @@ function parseQR(raw){
 
 function formatData(data){
   if(!data) return "—";
-  // Converte DD/MM/YYYY para YYYY/MM/DD ou YYYY-MM-DD
-  const [d,m,y]=data.split("/");
-  return `${y}/${m}/${d}`;
+  // Se já está em formato YYYY-MM-DD, converte para DD/MM/YYYY
+  if(data.includes("-")) {
+    const [y,m,d]=data.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  // Se estiver em DD/MM/YYYY, deixa como está
+  return data;
 }
 
 function preview(p){
