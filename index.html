@@ -7,99 +7,55 @@
 
   <!-- PWA -->
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#0B0F1A">
+  <meta name="theme-color" content="#070A12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <style>
     :root{
-      /* NOVA PALETA (mais “premium”, fundo escuro com contraste) */
-      --bg1:#070A12;
-      --bg2:#0B1020;
-      --card:#0F1630;
-      --card2:#0B1226;
-      --line:#1E2A4A;
-      --line2:#2A3A66;
-
-      --text:#F3F6FF;
-      --muted:#A9B4D0;
-
-      --blue:#3B82F6;
-      --ok:#22C55E;
-      --err:#EF4444;
-      --warn:#F59E0B;
-
+      --bg1:#070A12; --bg2:#0B1020;
+      --card:rgba(15,22,48,.88); --card2:rgba(11,18,38,.92);
+      --line:#1E2A4A; --line2:#2A3A66;
+      --text:#F3F6FF; --muted:#A9B4D0;
+      --blue:#3B82F6; --ok:#22C55E; --err:#EF4444; --warn:#F59E0B;
       --shadow: 0 18px 45px rgba(0,0,0,.45);
       --radius: 18px;
     }
-
     *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
     body{
-      margin:0;
-      color:var(--text);
+      margin:0; color:var(--text);
       background: radial-gradient(1200px 600px at 20% -10%, #16224a 0%, transparent 60%),
                   radial-gradient(900px 500px at 120% 10%, #1a2b5d 0%, transparent 55%),
                   linear-gradient(180deg, var(--bg1), var(--bg2));
     }
-
-    .wrap{ max-width: 650px; margin:0 auto; padding: 18px; padding-bottom: 28px; }
-
-    .top{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      margin: 8px 0 14px;
-    }
-    .title{
-      font-size: 20px;               /* FONTE MAIOR */
-      font-weight: 900;
-      letter-spacing: .2px;
-    }
-    .subtitle{
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.2rem;
-    }
-
+    .wrap{ max-width: 680px; margin:0 auto; padding: 18px; padding-bottom: 28px; }
+    .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin: 8px 0 14px; }
+    .title{ font-size: 22px; font-weight: 1000; letter-spacing:.2px; }
+    .subtitle{ margin-top: 4px; color: var(--muted); font-size: 14px; line-height: 1.2rem; }
     .pill{
-      padding:8px 12px;
-      border-radius:999px;
-      background: rgba(15,22,48,.7);
-      border:1px solid var(--line);
-      color:var(--muted);
-      font-size:12px;
-      display:flex; align-items:center; gap:8px;
-      white-space: nowrap;
+      padding:8px 12px; border-radius:999px; background: rgba(15,22,48,.7);
+      border:1px solid var(--line); color:var(--muted); font-size:12px;
+      display:flex; align-items:center; gap:8px; white-space: nowrap;
     }
     .dot{ width:9px; height:9px; border-radius:999px; background:var(--muted); }
-
     .card{
-      background: rgba(15,22,48,.85);
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: var(--shadow);
+      background: var(--card); border:1px solid var(--line);
+      border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow);
       backdrop-filter: blur(6px);
     }
-
     .grid{ display:grid; gap:12px; }
-
-    .hint{
-      color:var(--muted);
-      font-size: 14px;              /* FONTE MAIOR */
-      line-height: 1.25rem;
-    }
-
+    .hint{ color:var(--muted); font-size: 15px; line-height: 1.35rem; }
     .ops{ display:flex; gap:10px; flex-wrap:wrap; }
     .btn{
       border:1px solid var(--line2);
       background: rgba(11,18,38,.95);
       color:var(--text);
-      padding:14px 14px;            /* BOTÃO MAIOR */
+      padding:14px 14px;
       border-radius: 16px;
-      font-weight: 900;
+      font-weight: 1000;
       cursor:pointer;
       flex: 1;
-      min-width: 150px;
+      min-width: 160px;
       user-select:none;
       letter-spacing:.2px;
     }
@@ -107,39 +63,20 @@
     .btn.primary{ background: linear-gradient(180deg, #3B82F6, #2563EB); border-color:#2563EB; }
     .btn.good{ background: linear-gradient(180deg, #22C55E, #16A34A); border-color:#16A34A; }
     .btn.sel{ outline: 3px solid rgba(96,165,250,.75); }
-
     .row{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-
-    #reader{
-      width:100%;
-      overflow:hidden;
-      border-radius: var(--radius);
-      border:1px solid var(--line);
-      background:#000;
-    }
-
-    .statusLine{
-      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-    }
-    .status{ font-weight: 1000; font-size: 15px; letter-spacing:.2px; }
-    .status.ok{ color: var(--ok); }
-    .status.err{ color: var(--err); }
-    .status.warn{ color: var(--warn); }
-
+    #reader{ width:100%; overflow:hidden; border-radius: var(--radius); border:1px solid var(--line); background:#000; }
+    .statusLine{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .status{ font-weight: 1000; font-size: 16px; letter-spacing:.2px; }
+    .status.ok{ color: var(--ok); } .status.err{ color: var(--err); } .status.warn{ color: var(--warn); }
     .divider{ height:1px; background: rgba(30,42,74,.85); margin: 6px 0; }
 
     .kv{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    .field{
-      background: rgba(11,18,38,.9);
-      border:1px solid var(--line2);
-      border-radius: 16px;
-      padding:12px;
-    }
+    .field{ background: var(--card2); border:1px solid var(--line2); border-radius: 16px; padding:12px; }
     .label{ color:var(--muted); font-size: 12px; }
-    .value{ font-weight: 1000; margin-top:6px; font-size: 18px; letter-spacing:.2px; } /* FONTE BEM MAIOR */
+    .value{ font-weight: 1000; margin-top:6px; font-size: 20px; letter-spacing:.2px; }
 
     .mpaBox{
-      background: rgba(11,18,38,.9);
+      background: var(--card2);
       border:1px solid var(--line2);
       border-radius: 18px;
       padding: 14px;
@@ -148,7 +85,7 @@
     }
     .mpaInput{
       width: 100%;
-      font-size: 30px;              /* FONTE MUITO MAIOR */
+      font-size: 32px;
       font-weight: 1000;
       padding: 16px 16px;
       border-radius: 16px;
@@ -159,24 +96,14 @@
       letter-spacing:.4px;
     }
     .mpaInput::placeholder{ color:#7c8bb4; font-weight:900; }
-
     .mpaHelp{ color:var(--muted); font-size: 13px; line-height: 1.2rem; }
 
     .log{ display:grid; gap:10px; }
-    .logItem{
-      padding:12px;
-      border-radius: 16px;
-      background: rgba(11,18,38,.9);
-      border:1px solid var(--line2);
-    }
+    .logItem{ padding:12px; border-radius: 16px; background: var(--card2); border:1px solid var(--line2); }
     .mono{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:13px;               /* MAIOR */
-      color:#d6ddf4;
-      white-space:pre-wrap;
-      word-break:break-word;
+      font-size:13px; color:#d6ddf4; white-space:pre-wrap; word-break:break-word;
     }
-
     .hidden{ display:none; }
     .footerHint{ margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.25rem; text-align:center; }
   </style>
@@ -192,7 +119,6 @@
         <div class="title">📷 QR Concreto • Registro MPA</div>
         <div class="subtitle">Ler QR → Digitar MPA → Salvar na planilha</div>
       </div>
-
       <div class="pill">
         <span class="dot" id="connDot"></span>
         <span id="connTxt">offline</span>
@@ -252,7 +178,7 @@
 
         <div class="mpaHelp">
           Aceita vírgula ou ponto. Ex.: <b>21,5</b> = <b>21.5</b>.  
-          O botão <b>SALVAR</b> só libera quando QR + MPA estiverem ok.
+          <b>SALVAR</b> só libera quando QR + MPA estiverem ok.
         </div>
 
         <button class="btn good" id="btnSave" disabled>✅ SALVAR NA PLANILHA</button>
@@ -264,16 +190,16 @@
       <div id="logBox" class="log"></div>
 
       <div class="footerHint">
-        Se você atualizou o site e não mudou no celular, atualize o cache (instruções abaixo).
+        Se você atualizou o site e o celular não mudou, limpe dados do site (Chrome → cadeado → Configurações do site → Limpar dados).
       </div>
     </div>
   </div>
 
 <script>
 /***********************
- * CONFIGURAÇÕES
+ * CONFIG
  ***********************/
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyWldzFD4Vhk6FBjb2cEPOHRcG_XYz_8OTJzLt4D3bHyEiC7fKOV0ihl58Qb40oBAWk/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyDzgeU-ECAw4Gn3uTeQXPLM1nqINAMLgPHBxa72FXpXsazYt3Z8uZJLK-XZbv7Mqeg/exec";
 const API_TOKEN  = "qrConcreto_2026_Concrefer@01"; // ✅ SEU TOKEN
 
 /***********************
@@ -342,10 +268,7 @@ function normalizaData(v) {
 }
 
 /***********************
- * PARSE DO QR (UNIVERSAL)
- * - key=value com separadores | ; \n ,
- *   ex: traco=21663|cp=2/2|idade=28|mold=2026-01-05|hora=13:24|rupt=2026-02-02
- * - fallback do texto da etiqueta (Traço: 21663 etc)
+ * PARSE QR (UNIVERSAL)
  ***********************/
 function parseQR(raw) {
   const out = {
@@ -361,7 +284,6 @@ function parseQR(raw) {
 
   const text = String(raw).replace(/\r/g, "");
 
-  // 1) key=value
   const norm = text.replace(/\n/g, "|").replace(/;/g, "|").replace(/,/g, "|");
   const parts = norm.split("|").map(p => p.trim()).filter(Boolean);
 
@@ -397,22 +319,17 @@ function parseQR(raw) {
     return out;
   }
 
-  // 2) fallback etiqueta
+  // fallback etiqueta
   const traco = text.match(/Traço:\s*([0-9]+)/i);
   if (traco) out.traco_id = traco[1];
-
   const cp = text.match(/CP:\s*([0-9\/]+)/i);
   if (cp) out.cp = cp[1];
-
   const mold = text.match(/Moldagem:\s*([0-9]{2}\/[0-9]{2}\/[0-9]{4})/i);
   if (mold) out.data_moldagem = mold[1];
-
   const hora = text.match(/Hora:\s*([0-9]{2}:[0-9]{2})/i);
   if (hora) out.hora_moldagem = hora[1];
-
   const idade = text.match(/([0-9]+)\s*DIAS?/i);
   if (idade) out.idade_dias = idade[1];
-
   const rupt = text.match(/Ruptura:\s*([0-9]{2}\/[0-9]{2}\/[0-9]{4})/i);
   if (rupt) out.data_ruptura = rupt[1];
 
@@ -420,7 +337,7 @@ function parseQR(raw) {
 }
 
 /***********************
- * MPA: normalização e validação
+ * MPA normalize/validate
  ***********************/
 function normalizeMPA(input) {
   const s = String(input || "").trim().replace(",", ".");
@@ -434,16 +351,14 @@ function normalizeMPA(input) {
   }
   return cleaned;
 }
-
 function isValidMPA(mpaStr) {
   if (!mpaStr) return false;
   const v = Number(mpaStr);
-  return Number.isFinite(v) && v > 0 && v < 200; // ajuste se quiser
+  return Number.isFinite(v) && v > 0 && v < 200;
 }
-
 function updateSaveButton() {
   const mpa = normalizeMPA($("mpaInput").value);
-  const ok = !!lastParsed && !!lastRaw && isValidMPA(mpa);
+  const ok = !!lastParsed && !!lastRaw && isValidMPA(mpa) && !!selectedOp;
   $("btnSave").disabled = !ok;
 }
 
@@ -456,7 +371,8 @@ document.querySelectorAll("#ops .btn").forEach(b => {
     b.classList.add("sel");
     selectedOp = b.dataset.op;
     $("opView").textContent = selectedOp;
-    if ($("status").textContent === "selecione operador") setStatus("aguardando");
+    setStatus("aguardando");
+    updateSaveButton();
   });
 });
 
@@ -507,8 +423,7 @@ async function startScan() {
 
   try {
     scanning = true;
-
-    const config = { fps: 12, qrbox: { width: 280, height: 280 } };
+    const config = { fps: 12, qrbox: { width: 300, height: 300 } };
     const cams = await Html5Qrcode.getCameras();
     const backCam = cams && cams.length ? cams[cams.length - 1].id : undefined;
 
@@ -524,7 +439,6 @@ async function startScan() {
         lastRaw = decodedText;
         lastParsed = parsed;
 
-        // validação mínima do QR
         if (!parsed.traco_id || !parsed.cp || !parsed.data_moldagem || !parsed.hora_moldagem) {
           setStatus("QR lido, mas faltam campos (verifique o QR)", "err");
           updateSaveButton();
@@ -560,7 +474,9 @@ async function stopScan() {
 }
 
 /***********************
- * ENVIO
+ * ENVIO (ATUALIZADO - SEM CORS)
+ * Troca Content-Type para text/plain para evitar preflight/CORS,
+ * que é a causa mais comum do "Failed to fetch" no Apps Script.
  ***********************/
 async function sendToSheet(raw, parsed, mpaStr) {
   try {
@@ -579,29 +495,40 @@ async function sendToSheet(raw, parsed, mpaStr) {
 
     const res = await fetch(WEBAPP_URL, {
       method: "POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
+      headers: { "Content-Type":"text/plain;charset=utf-8" }, // ✅ evita CORS/preflight
+      body: JSON.stringify(payload),
+      redirect: "follow"
     });
 
-    const data = await res.json().catch(() => ({}));
+    // Se ainda bloquear, isso NÃO vai cair aqui (vai cair no catch),
+    // mas se chegou aqui, conseguimos ler o status.
+    const text = await res.text();
+    let data = {};
+    try { data = JSON.parse(text); } catch { data = { ok:false, error: "Resposta não-JSON: " + text.slice(0,120) }; }
+
+    if (!res.ok) {
+      setStatus(`falhou: HTTP ${res.status}`, "err");
+      pushLog({ ok:false, raw, operador: selectedOp, mpa: mpaStr });
+      updateSaveButton();
+      return;
+    }
 
     if (data.ok) {
       setStatus("gravado na planilha ✅", "ok");
       pushLog({ ok:true, raw, operador: selectedOp, mpa: mpaStr });
 
-      // limpa pra próxima
       lastRaw = "";
       lastParsed = null;
       $("mpaInput").value = "";
       fillPreview(null);
       updateSaveButton();
-
     } else {
       setStatus("falhou: " + (data.error || "erro"), "err");
       pushLog({ ok:false, raw, operador: selectedOp, mpa: mpaStr });
       updateSaveButton();
     }
   } catch (e) {
+    // Aqui cai se o navegador bloqueou (CORS) ou não conseguiu alcançar o endpoint
     setStatus("erro envio: " + (e?.message || e), "err");
     pushLog({ ok:false, raw, operador: selectedOp, mpa: mpaStr });
     updateSaveButton();
