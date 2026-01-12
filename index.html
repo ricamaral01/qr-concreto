@@ -14,534 +14,201 @@
   <style>
     :root{
       --bg1:#070A12; --bg2:#0B1020;
-      --card:rgba(15,22,48,.88); --card2:rgba(11,18,38,.92);
+      --card:rgba(15,22,48,.9); --card2:rgba(11,18,38,.95);
       --line:#1E2A4A; --line2:#2A3A66;
       --text:#F3F6FF; --muted:#A9B4D0;
       --blue:#3B82F6; --ok:#22C55E; --err:#EF4444; --warn:#F59E0B;
       --shadow: 0 18px 45px rgba(0,0,0,.45);
-      --radius: 18px;
     }
     *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
     body{
       margin:0; color:var(--text);
-      background: radial-gradient(1200px 600px at 20% -10%, #16224a 0%, transparent 60%),
-                  radial-gradient(900px 500px at 120% 10%, #1a2b5d 0%, transparent 55%),
-                  linear-gradient(180deg, var(--bg1), var(--bg2));
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
     }
-    .wrap{ max-width: 680px; margin:0 auto; padding: 18px; padding-bottom: 28px; }
-    .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin: 8px 0 14px; }
-    .title{ font-size: 22px; font-weight: 1000; letter-spacing:.2px; }
-    .subtitle{ margin-top: 4px; color: var(--muted); font-size: 14px; line-height: 1.2rem; }
-    .pill{
-      padding:8px 12px; border-radius:999px; background: rgba(15,22,48,.7);
-      border:1px solid var(--line); color:var(--muted); font-size:12px;
-      display:flex; align-items:center; gap:8px; white-space: nowrap;
-    }
-    .dot{ width:9px; height:9px; border-radius:999px; background:var(--muted); }
+    .wrap{ max-width: 700px; margin:0 auto; padding: 18px; }
+    .title{ font-size: 22px; font-weight: 900; }
+    .subtitle{ color:var(--muted); font-size:14px; margin-bottom:12px; }
+
     .card{
-      background: var(--card); border:1px solid var(--line);
-      border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow);
-      backdrop-filter: blur(6px);
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      display:grid;
+      gap:14px;
     }
-    .grid{ display:grid; gap:12px; }
-    .hint{ color:var(--muted); font-size: 15px; line-height: 1.35rem; }
+
     .ops{ display:flex; gap:10px; flex-wrap:wrap; }
     .btn{
+      padding:16px;
+      border-radius:16px;
       border:1px solid var(--line2);
-      background: rgba(11,18,38,.95);
+      background:var(--card2);
       color:var(--text);
-      padding:14px 14px;
-      border-radius: 16px;
-      font-weight: 1000;
+      font-weight:900;
+      font-size:16px;
       cursor:pointer;
-      flex: 1;
-      min-width: 160px;
-      user-select:none;
-      letter-spacing:.2px;
+      flex:1;
     }
-    .btn:active{ transform: scale(.99); }
-    .btn.primary{ background: linear-gradient(180deg, #3B82F6, #2563EB); border-color:#2563EB; }
-    .btn.good{ background: linear-gradient(180deg, #22C55E, #16A34A); border-color:#16A34A; }
-    .btn.sel{ outline: 3px solid rgba(96,165,250,.75); }
-    .row{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    #reader{ width:100%; overflow:hidden; border-radius: var(--radius); border:1px solid var(--line); background:#000; }
-    .statusLine{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    .status{ font-weight: 1000; font-size: 16px; letter-spacing:.2px; }
-    .status.ok{ color: var(--ok); } .status.err{ color: var(--err); } .status.warn{ color: var(--warn); }
-    .divider{ height:1px; background: rgba(30,42,74,.85); margin: 6px 0; }
+    .btn.primary{ background:#2563EB; }
+    .btn.good{ background:#16A34A; }
+    .btn.sel{ outline:3px solid #60A5FA; }
 
-    .kv{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    .field{ background: var(--card2); border:1px solid var(--line2); border-radius: 16px; padding:12px; }
-    .label{ color:var(--muted); font-size: 12px; }
-    .value{ font-weight: 1000; margin-top:6px; font-size: 20px; letter-spacing:.2px; }
-
-    .mpaBox{
-      background: var(--card2);
-      border:1px solid var(--line2);
-      border-radius: 18px;
-      padding: 14px;
-      display:grid;
-      gap:10px;
+    #reader{
+      width:100%;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      background:#000;
     }
+
+    .status{ font-weight:900; font-size:16px; }
+    .ok{ color:var(--ok); }
+    .err{ color:var(--err); }
+    .warn{ color:var(--warn); }
+
+    .kv{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .field{ background:var(--card2); border:1px solid var(--line2); border-radius:14px; padding:12px; }
+    .label{ font-size:12px; color:var(--muted); }
+    .value{ font-size:18px; font-weight:900; margin-top:6px; }
+
     .mpaInput{
-      width: 100%;
-      font-size: 32px;
-      font-weight: 1000;
-      padding: 16px 16px;
-      border-radius: 16px;
+      font-size:34px;
+      font-weight:900;
+      padding:18px;
+      border-radius:16px;
       border:1px solid var(--line2);
-      background: rgba(7,10,18,.85);
+      background:#050814;
       color:var(--text);
-      outline:none;
-      letter-spacing:.4px;
+      width:100%;
     }
-    .mpaInput::placeholder{ color:#7c8bb4; font-weight:900; }
-    .mpaHelp{ color:var(--muted); font-size: 13px; line-height: 1.2rem; }
-
-    .log{ display:grid; gap:10px; }
-    .logItem{ padding:12px; border-radius: 16px; background: var(--card2); border:1px solid var(--line2); }
-    .mono{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:13px; color:#d6ddf4; white-space:pre-wrap; word-break:break-word;
-    }
-    .hidden{ display:none; }
-    .footerHint{ margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.25rem; text-align:center; }
   </style>
 
-  <!-- Scanner QR -->
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div>
-        <div class="title">📷 QR Concreto • Registro MPA</div>
-        <div class="subtitle">Ler QR → Digitar MPA → Salvar na planilha</div>
-      </div>
-      <div class="pill">
-        <span class="dot" id="connDot"></span>
-        <span id="connTxt">offline</span>
-      </div>
+<div class="wrap">
+  <div class="title">📷 QR Concreto</div>
+  <div class="subtitle">Ler QR → Digitar MPA → Salvar</div>
+
+  <div class="card">
+
+    <div class="ops" id="ops">
+      <button class="btn" data-op="Gabriel">Gabriel</button>
+      <button class="btn" data-op="Tawan">Tawan</button>
+      <button class="btn" data-op="Ricardo">Ricardo</button>
     </div>
 
-    <div class="card grid">
-      <div class="hint">
-        <b>Fluxo:</b> selecione operador → <b>Ler QR</b> → digite <b>MPA</b> → clique <b>SALVAR</b>.
-      </div>
+    <button class="btn primary" id="btnStart">Ler QR</button>
 
-      <div class="ops" id="ops">
-        <button class="btn" data-op="Gabriel">Gabriel</button>
-        <button class="btn" data-op="Tawan">Tawan</button>
-        <button class="btn" data-op="Ricardo">Ricardo</button>
-      </div>
+    <div id="reader" style="display:none"></div>
 
-      <div class="row">
-        <button class="btn primary" id="btnStart">Ler QR</button>
-        <button class="btn" id="btnReset">Nova Leitura</button>
-      </div>
+    <div>Status: <span id="status" class="status">aguardando</span></div>
 
-      <div id="reader" class="hidden"></div>
-
-      <div class="statusLine">
-        <div class="hint">Status: <span id="status" class="status">aguardando</span></div>
-        <div class="hint">Operador: <b id="opView">—</b></div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="hint"><b>Prévia do QR</b></div>
-      <div class="kv">
-        <div class="field"><div class="label">Traço_ID</div><div class="value" id="pv_traco">—</div></div>
-        <div class="field"><div class="label">CP</div><div class="value" id="pv_cp">—</div></div>
-        <div class="field"><div class="label">Data Moldagem</div><div class="value" id="pv_mold">—</div></div>
-        <div class="field"><div class="label">Hora Moldagem</div><div class="value" id="pv_hora">—</div></div>
-        <div class="field"><div class="label">Idade (dias)</div><div class="value" id="pv_idade">—</div></div>
-        <div class="field"><div class="label">Data Ruptura</div><div class="value" id="pv_rupt">—</div></div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="mpaBox">
-        <div class="row">
-          <div class="hint"><b>MPA (digitado manualmente)</b></div>
-          <div class="hint"><b>Obrigatório</b></div>
-        </div>
-
-        <input
-          id="mpaInput"
-          class="mpaInput"
-          inputmode="decimal"
-          autocomplete="off"
-          placeholder="Ex: 21,5"
-        />
-
-        <div class="mpaHelp">
-          Aceita vírgula ou ponto. Ex.: <b>21,5</b> = <b>21.5</b>.  
-          <b>SALVAR</b> só libera quando QR + MPA estiverem ok.
-        </div>
-
-        <button class="btn good" id="btnSave" disabled>✅ SALVAR NA PLANILHA</button>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="hint"><b>Últimas leituras</b></div>
-      <div id="logBox" class="log"></div>
-
-      <div class="footerHint">
-        Se você atualizou o site e o celular não mudou, limpe dados do site (Chrome → cadeado → Configurações do site → Limpar dados).
-      </div>
+    <div class="kv">
+      <div class="field"><div class="label">Traço</div><div id="pv_traco" class="value">—</div></div>
+      <div class="field"><div class="label">CP</div><div id="pv_cp" class="value">—</div></div>
+      <div class="field"><div class="label">Idade</div><div id="pv_idade" class="value">—</div></div>
+      <div class="field"><div class="label">Moldagem</div><div id="pv_mold" class="value">—</div></div>
+      <div class="field"><div class="label">Hora</div><div id="pv_hora" class="value">—</div></div>
+      <div class="field"><div class="label">Ruptura</div><div id="pv_rupt" class="value">—</div></div>
     </div>
+
+    <input id="mpaInput" class="mpaInput" placeholder="MPA (ex: 21,5)" />
+
+    <button class="btn good" id="btnSave" disabled>💾 SALVAR</button>
+
   </div>
+</div>
 
 <script>
-/***********************
- * CONFIG
- ***********************/
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyDzgeU-ECAw4Gn3uTeQXPLM1nqINAMLgPHBxa72FXpXsazYt3Z8uZJLK-XZbv7Mqeg/exec";
-const API_TOKEN  = "qrConcreto_2026_Concrefer@01"; // ✅ SEU TOKEN
 
-/***********************
- * ESTADO
- ***********************/
-let selectedOp = "";
-let html5Qr = null;
-let scanning = false;
-
+let operador = "";
 let lastRaw = "";
 let lastParsed = null;
+let qr = null;
 
-/***********************
- * HELPERS
- ***********************/
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
+const status = (t,c="") => { $("status").textContent=t; $("status").className="status "+c; };
 
-function setStatus(text, type="") {
-  const el = $("status");
-  el.textContent = text;
-  el.className = "status " + (type || "");
-}
-
-function setConn() {
-  const online = navigator.onLine;
-  $("connTxt").textContent = online ? "online" : "offline";
-  $("connDot").style.background = online ? "#22C55E" : "#A9B4D0";
-}
-window.addEventListener("online", setConn);
-window.addEventListener("offline", setConn);
-setConn();
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-function fillPreview(p) {
-  $("pv_traco").textContent = p?.traco_id || "—";
-  $("pv_cp").textContent    = p?.cp || "—";
-  $("pv_mold").textContent  = p?.data_moldagem || "—";
-  $("pv_hora").textContent  = p?.hora_moldagem || "—";
-  $("pv_idade").textContent = (p?.idade_dias !== "" && p?.idade_dias != null) ? p.idade_dias : "—";
-  $("pv_rupt").textContent  = p?.data_ruptura || "—";
-}
-
-function pushLog(entry) {
-  const dt = new Date().toLocaleString();
-  const div = document.createElement("div");
-  div.className = "logItem";
-  div.innerHTML = `
-    <div class="hint"><b>${entry.ok ? "✅ OK" : "❌ ERRO"}</b> • ${dt} • Op: <b>${escapeHtml(entry.operador || "")}</b> • MPA: <b>${escapeHtml(entry.mpa || "—")}</b></div>
-    <div class="mono" style="margin-top:10px;">${escapeHtml(entry.raw || "")}</div>
-  `;
-  $("logBox").prepend(div);
-  while ($("logBox").children.length > 6) $("logBox").removeChild($("logBox").lastChild);
-}
-
-function normalizaData(v) {
-  if (!v) return "";
-  const s = String(v).trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-    const [y, m, d] = s.split("-");
-    return `${d}/${m}/${y}`;
-  }
-  return s;
-}
-
-/***********************
- * PARSE QR (UNIVERSAL)
- ***********************/
-function parseQR(raw) {
-  const out = {
-    traco_id: "",
-    cp: "",
-    data_moldagem: "",
-    hora_moldagem: "",
-    idade_dias: "",
-    data_ruptura: "",
-    qr_raw: raw
-  };
-  if (!raw) return out;
-
-  const text = String(raw).replace(/\r/g, "");
-
-  const norm = text.replace(/\n/g, "|").replace(/;/g, "|").replace(/,/g, "|");
-  const parts = norm.split("|").map(p => p.trim()).filter(Boolean);
-
-  const kv = {};
-  for (const p of parts) {
-    const eq = p.indexOf("=");
-    if (eq > 0) {
-      const k = p.slice(0, eq).trim().toLowerCase();
-      const v = p.slice(eq + 1).trim();
-      if (k) kv[k] = v;
-    }
-  }
-
-  const pick = (...keys) => {
-    for (const k of keys) if (kv[k] != null && kv[k] !== "") return kv[k];
-    return "";
-  };
-
-  const tracoKV = pick("traco", "traço", "traco_id", "traço_id");
-  const cpKV    = pick("cp");
-  const idadeKV = pick("idade", "idade_dias", "idade-dias");
-  const moldKV  = pick("mold", "moldagem", "data_mold", "data_moldagem");
-  const horaKV  = pick("hora", "hora_mold", "hora_moldagem");
-  const ruptKV  = pick("rupt", "ruptura", "data_rupt", "data_ruptura");
-
-  if (tracoKV || cpKV || idadeKV || moldKV || horaKV || ruptKV) {
-    out.traco_id = tracoKV;
-    out.cp = cpKV;
-    out.idade_dias = idadeKV;
-    out.hora_moldagem = horaKV;
-    out.data_moldagem = normalizaData(moldKV);
-    out.data_ruptura = normalizaData(ruptKV);
-    return out;
-  }
-
-  // fallback etiqueta
-  const traco = text.match(/Traço:\s*([0-9]+)/i);
-  if (traco) out.traco_id = traco[1];
-  const cp = text.match(/CP:\s*([0-9\/]+)/i);
-  if (cp) out.cp = cp[1];
-  const mold = text.match(/Moldagem:\s*([0-9]{2}\/[0-9]{2}\/[0-9]{4})/i);
-  if (mold) out.data_moldagem = mold[1];
-  const hora = text.match(/Hora:\s*([0-9]{2}:[0-9]{2})/i);
-  if (hora) out.hora_moldagem = hora[1];
-  const idade = text.match(/([0-9]+)\s*DIAS?/i);
-  if (idade) out.idade_dias = idade[1];
-  const rupt = text.match(/Ruptura:\s*([0-9]{2}\/[0-9]{2}\/[0-9]{4})/i);
-  if (rupt) out.data_ruptura = rupt[1];
-
-  return out;
-}
-
-/***********************
- * MPA normalize/validate
- ***********************/
-function normalizeMPA(input) {
-  const s = String(input || "").trim().replace(",", ".");
-  const cleaned = s.replace(/[^0-9.]/g, "");
-  if (!cleaned) return "";
-  const firstDot = cleaned.indexOf(".");
-  if (firstDot !== -1) {
-    const before = cleaned.slice(0, firstDot + 1);
-    const after  = cleaned.slice(firstDot + 1).replace(/\./g, "");
-    return before + after;
-  }
-  return cleaned;
-}
-function isValidMPA(mpaStr) {
-  if (!mpaStr) return false;
-  const v = Number(mpaStr);
-  return Number.isFinite(v) && v > 0 && v < 200;
-}
-function updateSaveButton() {
-  const mpa = normalizeMPA($("mpaInput").value);
-  const ok = !!lastParsed && !!lastRaw && isValidMPA(mpa) && !!selectedOp;
-  $("btnSave").disabled = !ok;
-}
-
-/***********************
- * OPERADOR
- ***********************/
-document.querySelectorAll("#ops .btn").forEach(b => {
-  b.addEventListener("click", () => {
-    document.querySelectorAll("#ops .btn").forEach(x => x.classList.remove("sel"));
+document.querySelectorAll("#ops .btn").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("#ops .btn").forEach(x=>x.classList.remove("sel"));
     b.classList.add("sel");
-    selectedOp = b.dataset.op;
-    $("opView").textContent = selectedOp;
-    setStatus("aguardando");
-    updateSaveButton();
+    operador=b.dataset.op;
+  };
+});
+
+$("btnStart").onclick=async()=>{
+  if(!operador){ status("selecione operador","err"); return; }
+  $("reader").style.display="block";
+  qr ??= new Html5Qrcode("reader");
+  await qr.start({facingMode:"environment"},{fps:10,qrbox:300},txt=>{
+    qr.stop();
+    $("reader").style.display="none";
+    lastRaw=txt;
+    lastParsed=parseQR(txt);
+    preview(lastParsed);
+    status("QR lido","warn");
+    $("btnSave").disabled=false;
   });
-});
+};
 
-/***********************
- * BOTÕES
- ***********************/
-$("btnStart").addEventListener("click", async () => {
-  if (!selectedOp) {
-    setStatus("selecione operador", "err");
-    return;
-  }
-  startScan();
-});
+$("btnSave").onclick=()=>send();
 
-$("btnReset").addEventListener("click", () => {
-  lastRaw = "";
-  lastParsed = null;
-  $("mpaInput").value = "";
-  fillPreview(null);
-  updateSaveButton();
-  setStatus("aguardando");
-});
-
-$("mpaInput").addEventListener("input", updateSaveButton);
-
-$("btnSave").addEventListener("click", async () => {
-  const mpa = normalizeMPA($("mpaInput").value);
-  if (!isValidMPA(mpa)) {
-    setStatus("MPA inválido", "err");
-    return;
-  }
-  if (!lastParsed || !lastRaw) {
-    setStatus("leia um QR primeiro", "err");
-    return;
-  }
-  await sendToSheet(lastRaw, lastParsed, mpa);
-});
-
-/***********************
- * SCANNER
- ***********************/
-async function startScan() {
-  setStatus("abrindo câmera...", "warn");
-  $("btnStart").disabled = true;
-  $("reader").classList.remove("hidden");
-
-  if (!html5Qr) html5Qr = new Html5Qrcode("reader");
-
-  try {
-    scanning = true;
-    const config = { fps: 12, qrbox: { width: 300, height: 300 } };
-    const cams = await Html5Qrcode.getCameras();
-    const backCam = cams && cams.length ? cams[cams.length - 1].id : undefined;
-
-    await html5Qr.start(
-      backCam,
-      config,
-      async (decodedText) => {
-        await stopScan();
-
-        const parsed = parseQR(decodedText);
-        fillPreview(parsed);
-
-        lastRaw = decodedText;
-        lastParsed = parsed;
-
-        if (!parsed.traco_id || !parsed.cp || !parsed.data_moldagem || !parsed.hora_moldagem) {
-          setStatus("QR lido, mas faltam campos (verifique o QR)", "err");
-          updateSaveButton();
-          $("btnStart").disabled = false;
-          return;
-        }
-
-        setStatus("QR lido ✅ digite o MPA e clique SALVAR", "warn");
-        $("mpaInput").focus();
-        updateSaveButton();
-        $("btnStart").disabled = false;
-      },
-      () => {}
-    );
-
-    setStatus("aponte para o QR", "warn");
-  } catch (e) {
-    scanning = false;
-    $("btnStart").disabled = false;
-    setStatus("erro câmera: " + (e?.message || e), "err");
-  }
+function parseQR(raw){
+  const o={traco_id:"",cp:"",idade_dias:"",data_moldagem:"",hora_moldagem:"",data_ruptura:"",qr_raw:raw};
+  raw.split("|").forEach(p=>{
+    const [k,v]=p.split("=");
+    if(!v)return;
+    if(k=="traco")o.traco_id=v;
+    if(k=="cp")o.cp=v;
+    if(k=="idade")o.idade_dias=v;
+    if(k=="mold")o.data_moldagem=v;
+    if(k=="hora")o.hora_moldagem=v;
+    if(k=="rupt")o.data_ruptura=v;
+  });
+  return o;
 }
 
-async function stopScan() {
-  try {
-    if (html5Qr && scanning) {
-      await html5Qr.stop();
-      await html5Qr.clear();
-    }
-  } catch {}
-  scanning = false;
-  $("reader").classList.add("hidden");
+function preview(p){
+  $("pv_traco").textContent=p.traco_id;
+  $("pv_cp").textContent=p.cp;
+  $("pv_idade").textContent=p.idade_dias;
+  $("pv_mold").textContent=p.data_moldagem;
+  $("pv_hora").textContent=p.hora_moldagem;
+  $("pv_rupt").textContent=p.data_ruptura;
 }
 
-/***********************
- * ENVIO (ATUALIZADO - SEM CORS)
- * Troca Content-Type para text/plain para evitar preflight/CORS,
- * que é a causa mais comum do "Failed to fetch" no Apps Script.
- ***********************/
-async function sendToSheet(raw, parsed, mpaStr) {
-  try {
-    setStatus("salvando na planilha...", "warn");
-    $("btnSave").disabled = true;
-    $("btnStart").disabled = true;
+async function send(){
+  const mpa=$("mpaInput").value.replace(",",".");
+  if(!mpa){ status("MPA obrigatório","err"); return; }
 
-    const payload = {
-      token: API_TOKEN,
-      timestamp: new Date().toISOString(),
-      operador: selectedOp,
-      mpa: mpaStr,
-      ...parsed,
-      qr_raw: raw
-    };
+  status("salvando...","warn");
 
-    const res = await fetch(WEBAPP_URL, {
-      method: "POST",
-      headers: { "Content-Type":"text/plain;charset=utf-8" }, // ✅ evita CORS/preflight
-      body: JSON.stringify(payload),
-      redirect: "follow"
-    });
+  const res=await fetch(WEBAPP_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body:JSON.stringify({
+      operador,
+      mpa,
+      ...lastParsed,
+      qr_raw:lastRaw,
+      timestamp:new Date().toISOString()
+    })
+  });
 
-    // Se ainda bloquear, isso NÃO vai cair aqui (vai cair no catch),
-    // mas se chegou aqui, conseguimos ler o status.
-    const text = await res.text();
-    let data = {};
-    try { data = JSON.parse(text); } catch { data = { ok:false, error: "Resposta não-JSON: " + text.slice(0,120) }; }
-
-    if (!res.ok) {
-      setStatus(`falhou: HTTP ${res.status}`, "err");
-      pushLog({ ok:false, raw, operador: selectedOp, mpa: mpaStr });
-      updateSaveButton();
-      return;
-    }
-
-    if (data.ok) {
-      setStatus("gravado na planilha ✅", "ok");
-      pushLog({ ok:true, raw, operador: selectedOp, mpa: mpaStr });
-
-      lastRaw = "";
-      lastParsed = null;
-      $("mpaInput").value = "";
-      fillPreview(null);
-      updateSaveButton();
-    } else {
-      setStatus("falhou: " + (data.error || "erro"), "err");
-      pushLog({ ok:false, raw, operador: selectedOp, mpa: mpaStr });
-      updateSaveButton();
-    }
-  } catch (e) {
-    // Aqui cai se o navegador bloqueou (CORS) ou não conseguiu alcançar o endpoint
-    setStatus("erro envio: " + (e?.message || e), "err");
-    pushLog({ ok:false, raw, operador: selectedOp, mpa: mpaStr });
-    updateSaveButton();
-  } finally {
-    $("btnStart").disabled = false;
+  const r=await res.text();
+  if(r.includes("ok")){
+    status("gravado na planilha","ok");
+    $("btnSave").disabled=true;
+    $("mpaInput").value="";
+  }else{
+    status("erro ao gravar","err");
   }
-}
-
-/***********************
- * PWA (Service Worker)
- ***********************/
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(()=>{});
 }
 </script>
 </body>
