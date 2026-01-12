@@ -107,7 +107,13 @@
     .dot.ok{ background: var(--ok); }
     .dot.warn{ background: var(--warn); }
     .dot.err{ background: var(--err); }
-    .mini{ color:var(--muted); font-weight:800; }
+    .mini{
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 14px;   /* 👈 diminui o texto */
+        line-height: 1.2;  /* 👈 deixa mais compacto */
+    }
+
 
     .modal{
       display:none;
