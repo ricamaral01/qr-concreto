@@ -14,288 +14,137 @@
     body { margin:0; background:var(--bg); color:#e5e7eb; }
     .wrap { max-width: 520px; margin: 0 auto; padding: 14px; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin: 8px 0 12px; }
-    .title { font-size: 16px; font-weight: 700; letter-spacing: .2px; }
+    .title { font-size: 16px; font-weight: 700; }
     .pill { padding:6px 10px; border-radius:999px; background:#0f172a; color:var(--muted); font-size:12px; }
-    .card { background:var(--card); border:1px solid #1f2937; border-radius: 16px; padding: 12px; box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+    .card { background:var(--card); border:1px solid #1f2937; border-radius: 16px; padding: 12px; }
     .grid { display:grid; gap:10px; }
     .ops { display:flex; gap:8px; flex-wrap:wrap; }
     .btn {
       border:1px solid #243244; background:#0f172a; color:#e5e7eb;
       padding:10px 12px; border-radius: 14px; font-weight:600; cursor:pointer;
-      flex: 1;
-      min-width: 120px;
+      flex: 1; min-width: 120px;
     }
-    .btn:active { transform: scale(.99); }
     .btn.primary { background:#1d4ed8; border-color:#1d4ed8; }
-    .btn.good { background:#16a34a; border-color:#16a34a; }
-    .btn.bad { background:#b91c1c; border-color:#b91c1c; }
     .btn.sel { outline: 2px solid #60a5fa; }
-    .small { color:var(--muted); font-size:12px; line-height:1.25rem; }
-    .row { display:flex; gap:10px; align-items:center; justify-content:space-between; }
-    #reader { width:100%; overflow:hidden; border-radius: 16px; border:1px solid #1f2937; }
-    .status { font-weight:700; }
+    .small { color:var(--muted); font-size:12px; }
+    #reader { width:100%; border-radius: 16px; border:1px solid #1f2937; }
     .status.ok { color: var(--ok); }
     .status.err { color: var(--err); }
-    .log { margin-top: 10px; }
-    .logItem { padding:10px; border-radius: 12px; background:#0f172a; border:1px solid #243244; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size:12px; color:#cbd5e1; white-space:pre-wrap; word-break:break-word; }
     .hidden { display:none; }
   </style>
 
-  <!-- Leitor QR (html5-qrcode) -->
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="title">📷 Leitor de QR • Registro na Planilha</div>
-      <div class="pill" id="connPill">offline</div>
-    </div>
-
-    <div class="card grid">
-      <div class="small">1) Selecione o operador • 2) Leia o QR • 3) Salva automático</div>
-
-      <div class="ops" id="ops">
-        <button class="btn" data-op="Gabriel">Gabriel</button>
-        <button class="btn" data-op="Tawan">Tawan</button>
-        <button class="btn" data-op="Ricardo">Ricardo</button>
-      </div>
-
-      <div class="row">
-        <button class="btn primary" id="btnStart">Ler QR</button>
-        <button class="btn" id="btnNew" disabled>Nova leitura</button>
-      </div>
-
-      <div id="reader" class="hidden"></div>
-
-      <div class="row">
-        <div class="small">Status: <span id="status" class="status">aguardando</span></div>
-        <div class="small">Operador: <span id="opView">—</span></div>
-      </div>
-
-      <div class="log">
-        <div class="small">Últimas leituras</div>
-        <div id="logBox" class="grid" style="margin-top:8px;"></div>
-      </div>
-    </div>
+<div class="wrap">
+  <div class="top">
+    <div class="title">📷 Leitor QR • Concreto</div>
+    <div class="pill" id="connPill">offline</div>
   </div>
 
+  <div class="card grid">
+    <div class="small">Selecione o operador → Leia o QR → Salva automático</div>
+
+    <div class="ops" id="ops">
+      <button class="btn" data-op="Gabriel">Gabriel</button>
+      <button class="btn" data-op="Tawan">Tawan</button>
+      <button class="btn" data-op="Ricardo">Ricardo</button>
+    </div>
+
+    <button class="btn primary" id="btnStart">Ler QR</button>
+    <button class="btn" id="btnNew" disabled>Nova leitura</button>
+
+    <div id="reader" class="hidden"></div>
+
+    <div class="small">
+      Status: <span id="status">aguardando</span><br>
+      Operador: <b id="opView">—</b>
+    </div>
+  </div>
+</div>
+
 <script>
-/***********************
- * CONFIGURAÇÕES
- ***********************/
-const WEBAPP_URL = "COLE_AQUI_SUA_URL_DO_WEBAPP_EXEC"; // ex: https://script.google.com/macros/s/XXXX/exec
-const API_TOKEN  = "TROQUE_ESSE_TOKEN_123";            // igual ao Code.gs
+/* ================= CONFIG ================= */
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzuaiWoLjd2TviQggQa4dLt2z5-qLetX2p7yxXyLEBBEjT5VL5zyrndebtB58RcOHtq/exec";
+const API_TOKEN  = "qrConcreto_2026_Concrefer@01";
 
-// Se o QR tiver um padrão key=value, isso faz parse automático
-// Aceita separadores: ;  &  \n
-function parseQR(raw) {
-  const out = { qr_raw: raw };
+/* ================= APP ================= */
+let operador = "";
+let qr;
 
-  // tenta detectar "key=value"
-  const parts = raw.split(/[;&\n]+/).map(s => s.trim()).filter(Boolean);
-  let foundKV = false;
-
-  for (const p of parts) {
-    const idx = p.indexOf("=");
-    if (idx > 0) {
-      foundKV = true;
-      const k = p.slice(0, idx).trim();
-      const v = p.slice(idx + 1).trim();
-      out[k] = v;
-    }
-  }
-
-  // Mapeamentos comuns (ajuste se seu QR usar outros nomes)
-  // Ex.: Traço_ID=... CP=... Idade_dias=...
-  const mapGet = (...keys) => keys.find(k => out[k] !== undefined);
-
-  const kTraco = mapGet("Traço_ID","Traco_ID","TRACO","traco","traco_id");
-  const kDataM = mapGet("Data_Moldagem","data_moldagem","DATA_MOLD","data_mold");
-  const kHoraM = mapGet("Hora_Moldagem","hora_moldagem","HORA_MOLD","hora_mold");
-  const kIdade = mapGet("Idade_dias","idade_dias","IDADE","idade");
-  const kCP    = mapGet("CP","cp");
-  const kRupt  = mapGet("Data_Ruptura","data_ruptura","DATA_RUPT","data_rupt");
-  const kMPA   = mapGet("MPA","mpa","Resistencia","resistencia");
-
-  return {
-    traco_id: kTraco ? out[kTraco] : "",
-    data_moldagem: kDataM ? out[kDataM] : "",
-    hora_moldagem: kHoraM ? out[kHoraM] : "",
-    idade_dias: kIdade ? out[kIdade] : "",
-    cp: kCP ? out[kCP] : "",
-    data_ruptura: kRupt ? out[kRupt] : "",
-    mpa: kMPA ? out[kMPA] : "",
-    qr_raw: raw,
-    __foundKV: foundKV
-  };
-}
-
-/***********************
- * UI / Scanner
- ***********************/
-let selectedOp = "";
-let html5Qr = null;
-let scanning = false;
-
-const $ = (id) => document.getElementById(id);
-const statusEl = $("status");
-const opView = $("opView");
-const connPill = $("connPill");
-const readerEl = $("reader");
-const btnStart = $("btnStart");
-const btnNew = $("btnNew");
-const logBox = $("logBox");
-
-function setStatus(text, type="") {
-  statusEl.textContent = text;
-  statusEl.className = "status " + (type || "");
-}
-
-function setConn() {
-  const online = navigator.onLine;
-  connPill.textContent = online ? "online" : "offline";
-  connPill.style.color = online ? "#22c55e" : "#94a3b8";
-}
-window.addEventListener("online", setConn);
-window.addEventListener("offline", setConn);
-setConn();
+const $ = id => document.getElementById(id);
 
 document.querySelectorAll("#ops .btn").forEach(b => {
-  b.addEventListener("click", () => {
+  b.onclick = () => {
     document.querySelectorAll("#ops .btn").forEach(x => x.classList.remove("sel"));
     b.classList.add("sel");
-    selectedOp = b.dataset.op;
-    opView.textContent = selectedOp;
+    operador = b.dataset.op;
+    $("opView").textContent = operador;
+  };
+});
+
+$("btnStart").onclick = async () => {
+  if (!operador) return setStatus("Selecione operador", true);
+  $("reader").classList.remove("hidden");
+  qr = new Html5Qrcode("reader");
+
+  const cams = await Html5Qrcode.getCameras();
+  await qr.start(
+    cams[cams.length - 1].id,
+    { fps: 10, qrbox: 250 },
+    async txt => {
+      await qr.stop();
+      $("reader").classList.add("hidden");
+      enviar(txt);
+    }
+  );
+};
+
+$("btnNew").onclick = () => location.reload();
+
+function setStatus(msg, err=false){
+  const s = $("status");
+  s.textContent = msg;
+  s.className = err ? "status err" : "status ok";
+}
+
+async function enviar(raw){
+  setStatus("Enviando...");
+  const payload = {
+    token: API_TOKEN,
+    operador,
+    qr_raw: raw,
+    timestamp: new Date().toISOString()
+  };
+
+  const r = await fetch(WEBAPP_URL, {
+    method: "POST",
+    headers: { "Content-Type":"application/json" },
+    body: JSON.stringify(payload)
   });
-});
 
-btnStart.addEventListener("click", async () => {
-  if (!selectedOp) {
-    setStatus("selecione operador", "err");
-    return;
-  }
-  if (!WEBAPP_URL.includes("script.google.com")) {
-    setStatus("cole a URL do Web App (/exec)", "err");
-    return;
-  }
-  startScan();
-});
-
-btnNew.addEventListener("click", async () => {
-  // reinicia câmera
-  if (scanning) return;
-  startScan();
-});
-
-async function startScan() {
-  setStatus("abrindo câmera...", "");
-  btnStart.disabled = true;
-  btnNew.disabled = true;
-
-  readerEl.classList.remove("hidden");
-
-  if (!html5Qr) html5Qr = new Html5Qrcode("reader");
-
-  try {
-    scanning = true;
-
-    const config = { fps: 12, qrbox: { width: 260, height: 260 } };
-    const cams = await Html5Qrcode.getCameras();
-    const backCam = cams && cams.length ? cams[cams.length - 1].id : undefined;
-
-    await html5Qr.start(
-      backCam,
-      config,
-      async (decodedText) => {
-        // para no primeiro QR
-        await stopScan();
-        setStatus("lido! enviando...", "");
-        await sendToSheet(decodedText);
-      },
-      (err) => { /* ignore frame errors */ }
-    );
-
-    setStatus("apontar para o QR", "");
-  } catch (e) {
-    scanning = false;
-    btnStart.disabled = false;
-    setStatus("erro câmera: " + (e?.message || e), "err");
+  const j = await r.json();
+  if(j.ok){
+    setStatus("Gravado na planilha ✔");
+    $("btnNew").disabled = false;
+  } else {
+    setStatus("Erro: " + j.error, true);
   }
 }
 
-async function stopScan() {
-  try {
-    if (html5Qr && scanning) {
-      await html5Qr.stop();
-      await html5Qr.clear();
-    }
-  } catch {}
-  scanning = false;
-  readerEl.classList.add("hidden");
+/* conexão */
+function conn(){
+  $("connPill").textContent = navigator.onLine ? "online" : "offline";
 }
+window.addEventListener("online", conn);
+window.addEventListener("offline", conn);
+conn();
+</script>
 
-async function sendToSheet(raw) {
-  try {
-    const parsed = parseQR(raw);
-    const payload = {
-      token: API_TOKEN,
-      timestamp: new Date().toISOString(),
-      operador: selectedOp,
-      ...parsed
-    };
-
-    const res = await fetch(WEBAPP_URL, {
-      method: "POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json().catch(() => ({}));
-
-    if (data.ok) {
-      setStatus("gravado na planilha ✅", "ok");
-      pushLog({ ok:true, raw, payload, id:data.id });
-      btnNew.disabled = false;
-    } else {
-      setStatus("falhou: " + (data.error || "erro"), "err");
-      pushLog({ ok:false, raw, payload, error:data.error || "erro" });
-      btnNew.disabled = false;
-    }
-  } catch (e) {
-    setStatus("erro envio: " + (e?.message || e), "err");
-    pushLog({ ok:false, raw, error:String(e) });
-    btnNew.disabled = false;
-  } finally {
-    btnStart.disabled = false;
-  }
-}
-
-function pushLog(entry) {
-  const dt = new Date().toLocaleString();
-  const div = document.createElement("div");
-  div.className = "logItem";
-  div.innerHTML = `
-    <div class="row">
-      <div class="small">${entry.ok ? "✅ OK" : "❌ ERRO"} • ${dt}</div>
-      <div class="small">Op: <b>${selectedOp}</b></div>
-    </div>
-    <div class="mono" style="margin-top:8px;">${escapeHtml(entry.raw)}</div>
-  `;
-  logBox.prepend(div);
-  // limita histórico
-  while (logBox.children.length > 6) logBox.removeChild(logBox.lastChild);
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-/***********************
- * PWA (Service Worker)
- ***********************/
+<script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  navigator.serviceWorker.register("./sw.js");
 }
 </script>
 </body>
