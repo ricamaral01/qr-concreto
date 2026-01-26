@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Leitura CP • Registro MPA</title>
+  <title>CONCRETRACK • Leitura CP</title>
 
   <!-- PWA -->
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#070A12">
+  <meta name="theme-color" content="#2F3640">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -18,21 +18,52 @@
 
   <style>
     :root{
-      --bg1:#001D3D; --bg2:#001D3D;
-      --card:rgba(15,35,80,.8); --card2:rgba(10,25,60,.85);
-      --line:#1E4B8B; --line2:#2B5FA3;
-      --text:#F3F6FF; --muted:#B9C4D0;
-      --ok:#22C55E; --err:#EF4444; --warn:#F59E0B;
+      /* CONCRETRACK — Cinza Concreto */
+      --bg0:#2F3640;
+      --bg1:#262C35;
+      --bg2:#1F242C;
+
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(0,0,0,.22);
+
+      --line: rgba(255,255,255,.10);
+      --line2: rgba(255,255,255,.16);
+
+      --text:#F3F6FF;
+      --muted:#B9C4D0;
+
+      --ok:#16A34A;
+      --err:#EF4444;
+      --warn:#F59E0B;
+
       --shadow: 0 18px 45px rgba(0,0,0,.45);
     }
+
     *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-    body{ margin:0; color:var(--text); background: #001D3D; }
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, rgba(0,0,0,.35), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg2));
+      min-height:100vh;
+    }
     .wrap{ max-width: 700px; margin:0 auto; padding: 18px; }
-    .title{ font-size:28px; font-weight: 900; }
-    .subtitle{ color:var(--muted); font-size:15px; margin-bottom:12px; }
+
+    /* Header */
+    .title{ font-size:28px; font-weight: 1000; letter-spacing:.4px; }
+    .subtitle{ color:var(--muted); font-size:14px; margin:6px 0 10px; line-height:1.2; }
+    .accentLine{
+      height:4px; width:100%;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(167,33,65,.95), rgba(138,201,104,.55), transparent);
+      opacity:.85;
+      margin:10px 0 14px;
+    }
 
     .card{
-      background:var(--card);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.18));
       border:1px solid var(--line);
       border-radius:18px;
       padding:16px;
@@ -40,6 +71,7 @@
       display:grid;
       gap:14px;
       font-size:15px;
+      backdrop-filter: blur(6px);
     }
 
     .ops{ display:flex; gap:10px; flex-wrap:wrap; }
@@ -47,7 +79,7 @@
       padding:16px;
       border-radius:16px;
       border:1px solid var(--line2);
-      background:var(--card2);
+      background: rgba(0,0,0,.18);
       color:var(--text);
       font-weight:900;
       font-size:16px;
@@ -57,11 +89,45 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
+      gap:10px;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
     }
-    .btn.primary{ background:#696969; border-color:#696969; }
-    .btn.good{ background:#16A34A; border-color:#16A34A; }
-    .btn.sel{ outline:3px solid #A9A9A9; }
-    .btn.dark{ background:#0B1220; border-color:#0B1220; }
+    .btn:active{ transform: translateY(1px); }
+
+    /* Operador selecionado */
+    .btn.sel{
+      border-color: rgba(138,201,104,.70);
+      box-shadow: 0 0 0 3px rgba(138,201,104,.18);
+      background: rgba(0,0,0,.28);
+    }
+
+    /* Ler QR */
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(21,65,111,.35), rgba(0,0,0,.22));
+      border-color: rgba(138,201,104,.25);
+    }
+
+    /* Salvar */
+    .btn.good{
+      background: linear-gradient(180deg, rgba(22,163,74,.95), rgba(16,120,55,.95));
+      border-color: rgba(22,163,74,.9);
+      color:#08130c;
+      text-shadow: 0 1px 0 rgba(255,255,255,.25);
+      font-size:18px;
+      padding:18px;
+      border-radius:18px;
+    }
+    .btn.good[disabled]{
+      opacity:.45;
+      filter: grayscale(.25);
+      cursor:not-allowed;
+    }
+
+    /* Dashboard */
+    .btn.dark{
+      background: rgba(0,0,0,.22);
+      border-color: rgba(255,255,255,.14);
+    }
 
     #reader{
       width:100%;
@@ -77,43 +143,53 @@
     .warn{ color:var(--warn); }
 
     .kv{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .field{ background:var(--card2); border:1px solid var(--line2); border-radius:14px; padding:12px; }
-    .label{ font-size:15px; color:var(--muted); }
-    .value{ font-size:28px; font-weight:900; margin-top:6px; }
+    .field{
+      background: rgba(0,0,0,.18);
+      border:1px solid var(--line2);
+      border-radius:14px;
+      padding:12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .label{ font-size:14px; color:var(--muted); }
+    .value{ font-size:28px; font-weight:1000; margin-top:6px; }
 
     .mpaInput{
       font-size:34px;
-      font-weight:900;
+      font-weight:1000;
       padding:18px;
       border-radius:16px;
-      border:1px solid var(--line2);
-      background:#050814;
+      border:1px solid rgba(138,201,104,.22);
+      background: rgba(0,0,0,.35);
       color:var(--text);
       width:100%;
       outline:none;
     }
+    .mpaInput:focus{
+      box-shadow: 0 0 0 4px rgba(138,201,104,.12);
+      border-color: rgba(138,201,104,.40);
+    }
 
     .pillRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:20px 32px;
+      display:inline-flex; align-items:center; gap:10px;
+      padding:16px 18px;
       border-radius:999px;
       border:1px solid var(--line2);
-      background:rgba(5,8,20,.55);
-      font-weight:900;
-      font-size:24px;
+      background: rgba(0,0,0,.22);
+      font-weight:1000;
+      font-size:18px;
     }
     .dot{ width:12px; height:12px; border-radius:999px; background:var(--muted); }
     .dot.ok{ background: var(--ok); }
     .dot.warn{ background: var(--warn); }
     .dot.err{ background: var(--err); }
     .mini{
-        color: var(--muted);
-        font-weight: 700;
-        font-size: 14px;   /* 👈 diminui o texto */
-        line-height: 1.2;  /* 👈 deixa mais compacto */
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 14px;
+      line-height: 1.2;
+      padding: 14px 16px;
     }
-
 
     .modal{
       display:none;
@@ -125,7 +201,7 @@
     }
     .modal.show{ display:flex; }
     .modal-content{
-      background:var(--card);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.30));
       border:1px solid var(--line);
       border-radius:20px;
       padding:32px;
@@ -135,7 +211,7 @@
     }
     .modal-title{
       font-size:28px;
-      font-weight:900;
+      font-weight:1000;
       margin-bottom:16px;
       color:var(--ok);
     }
@@ -149,8 +225,8 @@
       border-radius:16px;
       border:none;
       background:var(--ok);
-      color:#000;
-      font-weight:900;
+      color:#07110a;
+      font-weight:1000;
       font-size:18px;
       cursor:pointer;
     }
@@ -162,8 +238,9 @@
 
 <body>
 <div class="wrap">
-  <div class="title">📷 QR Concreto</div>
+  <div class="title">📷 CONCRETRACK • QR Concreto</div>
   <div class="subtitle">Ler QR → Digitar MPA → Status automático (Min/Max) → Salvar</div>
+  <div class="accentLine"></div>
 
   <div class="card">
 
@@ -173,7 +250,7 @@
       <button class="btn" data-op="Ricardo">Ricardo</button>
     </div>
 
-    <button class="btn primary" id="btnStart">Ler QR</button>
+    <button class="btn primary" id="btnStart">📷 Ler QR</button>
 
     <div id="reader" style="display:none"></div>
 
@@ -200,7 +277,6 @@
 
     <button class="btn good" id="btnSave" disabled>💾 SALVAR</button>
 
-    <!-- ✅ LINK PARA DASHBOARD -->
     <a class="btn dark" id="btnDash" href="#" target="_blank" rel="noopener">📊 ABRIR DASHBOARD</a>
 
   </div>
@@ -215,9 +291,39 @@
 </div>
 
 <script>
+/* ===============================
+   ✅ REGISTRO DO SERVICE WORKER
+   =============================== */
+(async function registerSW(){
+  try{
+    if ("serviceWorker" in navigator) {
+      await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+    }
+  }catch(e){}
+})();
+
+/* =========================================
+   ✅ UPDATE DE CACHE 1x POR DIA (SEM LOOP)
+   - pede update do SW 1x por dia
+   - não dá reload infinito
+   ========================================= */
+(async function dailyUpdatePing(){
+  try{
+    const today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    const last = localStorage.getItem("ct_sw_update_day");
+    if (last === today) return;
+
+    localStorage.setItem("ct_sw_update_day", today);
+
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const reg of regs) await reg.update();
+    }
+  } catch(e){}
+})();
+
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxP_jn_bMwt3mVER_1nyK-NevqGrA8A9d3C8mf-u5Din31nenDbrrI3miGyQ9rbUaZH/exec";
 const DASH_URL = WEBAPP_URL + "?view=dashboard";
-
 document.getElementById("btnDash").href = DASH_URL;
 
 /**
@@ -239,26 +345,7 @@ let qr = null;
 const $ = id => document.getElementById(id);
 const setStatus = (t,c="") => { $("status").textContent=t; $("status").className="status "+c; };
 
-function fecharModal(){
-  $("modalSucesso").classList.remove("show");
-}
-
-// força pegar versão nova por abertura (evita “ficar preso” no cache/PWA)
-(async function forceFreshOnOpen(){
-  try{
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      for (const reg of regs) await reg.update();
-    }
-    const key = "cache_bust_done";
-    if (!sessionStorage.getItem(key) && 'caches' in window) {
-      sessionStorage.setItem(key, "1");
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-      location.reload(true);
-    }
-  } catch(e){}
-})();
+function fecharModal(){ $("modalSucesso").classList.remove("show"); }
 
 document.querySelectorAll("#ops .btn").forEach(b=>{
   b.onclick=()=>{
@@ -397,7 +484,6 @@ async function send(){
 
     const text = await res.text();
 
-    // tenta parsear JSON (se o apps script retornou JSON)
     let data = null;
     try { data = JSON.parse(text); } catch(e) {}
 
@@ -407,7 +493,6 @@ async function send(){
       $("btnSave").disabled = true;
       updateMPAStatus();
 
-      // ✅ atualiza link do dashboard (se vier path no JSON)
       if(data && data.dashboard_path){
         $("btnDash").href = WEBAPP_URL + data.dashboard_path;
       } else {
